@@ -1,7 +1,5 @@
 # Advent of Code 2021
 
-import math
-
 # Day 3 part 1
 # Rates
 gamma_rate_str = ""
@@ -107,9 +105,6 @@ scrubber_list = []
 with open("./data/day3a.txt", "r") as file:
     lines = file.read().splitlines()
     generator_list = lines.copy()
-
-with open("./data/day3a.txt", "r") as file:
-    lines = file.read().splitlines()
     scrubber_list = lines.copy()
 
 
@@ -146,11 +141,11 @@ for i in range(len(lines[0])):  # loop over single number length
         filtered1 = list(filter(lambda x: (x[i] == '0'), generator_list))
         # print(filtered1)
     generator_list = filtered1
-    print("The generator list is reduced to:")
-    print(generator_list)
+    # print("The generator list is reduced to:")
+    # print(generator_list)
 
-print("Final generator list")
-print(generator_list)
+# print("Final generator list")
+# print(generator_list)
 generator_rating = int(generator_list[0], base=2)
 print(f"Generator in decimal is: {generator_rating}")
 print("")
@@ -166,11 +161,11 @@ for i in range(len(lines[0])):  # loop over single number length
     else:
         filtered2 = list(filter(lambda x: (x[i] == '1'), scrubber_list))
     scrubber_list = filtered2
-    print("The scrubber list is reduced to:")
-    print(scrubber_list)
+    # print("The scrubber list is reduced to:")
+    # print(scrubber_list)
 
-print("Final scrubber list")
-print(scrubber_list)
+# print("Final scrubber list")
+# print(scrubber_list)
 scrubber_rating = int(scrubber_list[0], base=2)
 print(f"Scrubber in decimal is: {scrubber_rating}")
 #
