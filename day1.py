@@ -4,7 +4,7 @@
 # Counter measurements that are larger than the previous one
 counter_by_single_value = 0
 
-with open("./data/day1a.txt", "r") as file:
+with open("./data/day1.txt", "r") as file:
     raw_buffer = file.readlines()
     for i in range(1, len(raw_buffer), 1):
         if int(raw_buffer[i]) > int(raw_buffer[i - 1]):
@@ -17,7 +17,7 @@ print(counter_by_single_value)
 # Counter measurements of three consecutive single measurements
 counter_by_sliding_window = 0
 
-with open("./data/day1a.txt", "r") as file:
+with open("./data/day1.txt", "r") as file:
     raw_buffer = file.readlines()
     prev_sum = 0
     current_sum = 0

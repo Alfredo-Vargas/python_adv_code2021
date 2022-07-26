@@ -39,7 +39,7 @@ epsilon = {
 
 input_length = 0
 
-with open("./data/day3a.txt", "r") as file:
+with open("./data/day3.txt", "r") as file:
     lines = file.read().splitlines()
     input_length = len(lines)
     for line in lines:
@@ -102,7 +102,7 @@ scrubber_rating = 0
 generator_list = []
 scrubber_list = []
 
-with open("./data/day3a.txt", "r") as file:
+with open("./data/day3.txt", "r") as file:
     lines = file.read().splitlines()
     generator_list = lines.copy()
     scrubber_list = lines.copy()

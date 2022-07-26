@@ -18,7 +18,7 @@ last_winner_index = 0
 last_winner_state = np.zeros((5, 5))
 
 # We load the bingo cards and card states
-with open("./data/day4a.txt", "r") as file:
+with open("./data/day4.txt", "r") as file:
     lines = file.read().splitlines()
     sequence = np.array([int(p) for p in lines[0].split(",")])
     bingo_lines = lines[1:]

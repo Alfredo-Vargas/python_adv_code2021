@@ -9,7 +9,7 @@ depth_pos = 0
 # regardless of the order of the commands
 commands = {"forward": 0, "up": 0, "down": 0}
 
-with open("./data/day2a.txt", "r") as file:
+with open("./data/day2.txt", "r") as file:
     raw_buffer = file.readlines()
     for line in raw_buffer:
         command_value = line.split()
@@ -24,7 +24,7 @@ coordinates = {"horizontal": 0, "depth": 0, "aim": 0}
 
 # The operations are NOT commutative, then we update the values at every step
 
-with open("./data/day2a.txt", "r") as file:
+with open("./data/day2.txt", "r") as file:
     raw_buffer = file.readlines()
     for line in raw_buffer:
         command_value = line.split()
