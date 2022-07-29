@@ -2,7 +2,7 @@
 import numpy as np
 # import time
 
-# Day 6 part 1
+# Day 6 part 1 and 2
 
 # Dictionary to hash the possible values of the given input
 lanterfish_dict = {}
