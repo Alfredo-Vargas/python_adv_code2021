@@ -1,5 +1,4 @@
 # Advent of Code 2021
-import numpy as np
 
 # Day 7 part 1 and 2
 
