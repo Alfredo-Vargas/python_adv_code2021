@@ -1,31 +1,7 @@
 # Advent of Code 2021
 import numpy as np
-# import time
 
 # Day 7 part 1 and 2
-
-# with open("./data/test.txt", "r") as file:
-with open("./data/test.txt", "r") as file:
-    crabs = file.readline().rstrip().split(",")
-    crabs_positions = np.array([int(x) for x in crabs])
-
-
-print("For Test")
-length = max(crabs_positions) - min(crabs_positions)
-sum_pos = sum(crabs_positions)
-position = int(sum_pos / length) + 2
-deviation = 3
-list_fuels = []
-
-for i in range(position - deviation, position + deviation, 1):
-    fuel = 0
-    for crab_position in crabs_positions:
-        # fuel += abs(i - crab_position)  # fuel for part 1
-        fuel += abs(i - crab_position) * (abs(i - crab_position) + 1) / 2
-    list_fuels.append(int(fuel))
-    # print(fuel, i)
-
-print(min(list_fuels))
 
 print("----------------------------------------")
 print("----------------------------------------")
