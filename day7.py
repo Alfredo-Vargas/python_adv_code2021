@@ -13,6 +13,7 @@ with open("./data/day7.txt", "r") as file:
 length = max(crabs_positions) - min(crabs_positions)
 sum_pos = sum(crabs_positions)
 position = int(sum(crabs_positions) / length)
+# Manually tweaked deviation and position (inspect the minimum)
 deviation = 100
 position = 400
 list_fuels = []

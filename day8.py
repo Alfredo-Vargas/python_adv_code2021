@@ -17,6 +17,12 @@ with open("./data/day8.txt", "r") as file:
         output_values.append(signals[1].split())
 
 
+# We sort the lists
+for i in range(len(unique_patterns)):
+    unique_patterns[i] = ["".join(sorted(x)) for x in unique_patterns[i]]
+for i in range(len(output_values)):
+    output_values[i] = ["".join(sorted(x)) for x in output_values[i]]
+
 # Solution for Part 1
 counter = 0
 for output in output_values:
@@ -32,14 +38,11 @@ print("For day 8 Part 2")
 
 def get_numbers_dict(unique_pattern):
     numbers_dict = {}
-    pre_one = "".join(filter(lambda x: len(x) == 2, unique_pattern))
-    pre_seven = "".join(filter(lambda x: len(x) == 3, unique_pattern))
-    pre_four = "".join(filter(lambda x: len(x) == 4, unique_pattern))
+    one = "".join(filter(lambda x: len(x) == 2, unique_pattern))
+    seven = "".join(filter(lambda x: len(x) == 3, unique_pattern))
+    four = "".join(filter(lambda x: len(x) == 4, unique_pattern))
     six_segments_nums = list(filter(lambda x: len(x) == 6, unique_pattern))
     five_segments_nums = list(filter(lambda x: len(x) == 5, unique_pattern))
-    one = "".join(sorted(pre_one))
-    seven = "".join(sorted(pre_seven))
-    four = "".join(sorted(pre_four))
     numbers_dict[one] = "1"
     numbers_dict[seven] = "7"
     numbers_dict[four] = "4"
@@ -58,13 +61,13 @@ def get_numbers_dict(unique_pattern):
         if auxiliar[0] in digit and auxiliar[1] in digit:
             contains_auxiliar = True
         if contains_one and contains_auxiliar:
-            nine = "".join(sorted(digit))
+            nine = digit
             numbers_dict[nine] = "9"
         elif not contains_one and contains_auxiliar:
-            six = "".join(sorted(digit))
+            six = digit
             numbers_dict[six] = "6"
         else:
-            zero = "".join(sorted(digit))
+            zero = digit
             numbers_dict[zero] = "0"
 
     # Digits of five segments
@@ -76,35 +79,24 @@ def get_numbers_dict(unique_pattern):
         if auxiliar[0] in digit and auxiliar[1] in digit:
             contains_auxiliar = True
         if contains_one:
-            three = "".join(sorted(digit))
+            three = digit
             numbers_dict[three] = "3"
         elif contains_auxiliar:
-            five = "".join(sorted(digit))
+            five = digit
             numbers_dict[five] = "5"
         else:
-            two = "".join(sorted(digit))
+            two = digit
             numbers_dict[two] = "2"
-    print(numbers_dict)
+    return numbers_dict
 
 
-get_numbers_dict(unique_patterns[0])
-get_numbers_dict(unique_patterns[1])
-given_pattern = [
-    "acedgfb",
-    "cdfbe",
-    "gcdfa",
-    "fbcad",
-    "dab",
-    "cefabd",
-    "cdfgeb",
-    "eafb",
-    "cagedb",
-    "ab",
-]
-get_numbers_dict(given_pattern)
-# siete = "zabscdve"
-# uno = "sv"
-# for char in uno:
-#     siete = siete.replace(char, "", 1)
-#
-# print(siete)
+final_list = []
+
+for i in range(len(unique_patterns)):
+    temp_dict = get_numbers_dict(unique_patterns[i])
+    string_number = ""
+    for digit in output_values[i]:
+        string_number = string_number + temp_dict[digit]
+    final_list.append(int(string_number))
+
+print(f" The sum of the output values is: {sum(final_list)}")
