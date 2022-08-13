@@ -12,7 +12,7 @@ file = sys.argv[1] if len(sys.argv) > 1 else '12.in'
 #     print("defaultdict is a subclass of a dictionary")
 
 # DEFAULT DICTIONARIES
-# The default values of non defined keys will be callable such int, float, list, set, ...
+# The default values of non defined keys will be by default a callable such int, float, list, set, ...
 # Whenever a key is passed that was not previously defined with its value
 # The key will automatically be created with a value equal to the given default callable
 # INSIGHT: A dictionary key can have a list as value!!! 
@@ -25,13 +25,13 @@ for line in open(file):
     next_steps[b].append(a)
 
 
-start = ('start', set(['start']), None)
+start = ('start', set(['start']), None)  # This is a node, position, path_history, and whether visited a single small cave twice
 ans = 0
 # We initialize or deck!
 # Every value on our deck is a tuple containing current position, neighbors and wether it has visited twice
 Q = deque([start])
 while Q:
-    current_position, current_path, is_visited_twice = Q.popleft()  # the next step
+    current_position, current_path, visited_twice = Q.popleft()  # the next step
     if current_position == 'end':
         ans += 1
         continue
@@ -41,8 +41,8 @@ while Q:
             new_path = set(current_path)
             if position.lower() == position:
                 new_path.add(position)
-            Q.append((position, new_path, is_visited_twice))
-        elif position in current_path and is_visited_twice is None and position not in ['start', 'end']:
+            Q.append((position, new_path, visited_twice))
+        elif position in current_path and visited_twice is None and position not in ['start', 'end']:
             Q.append((position, current_path, position))
 
 print(ans)
