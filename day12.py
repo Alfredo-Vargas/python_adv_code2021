@@ -25,24 +25,31 @@ for line in open(file):
     next_steps[b].append(a)
 
 
-start = ('start', set(['start']), None)  # This is a node, position, path_history, and whether visited a single small cave twice
-ans = 0
-# We initialize or deck!
-# Every value on our deck is a tuple containing current position, neighbors and wether it has visited twice
-Q = deque([start])
-while Q:
-    current_position, current_path, visited_twice = Q.popleft()  # the next step
-    if current_position == 'end':
-        ans += 1
-        continue
-    # we iterate over the list that contains the adjacent points to the current position
-    for position in next_steps[current_position]:
-        if position not in current_path:
-            new_path = set(current_path)
-            if position.lower() == position:
-                new_path.add(position)
-            Q.append((position, new_path, visited_twice))
-        elif position in current_path and visited_twice is None and position not in ['start', 'end']:
-            Q.append((position, current_path, position))
 
-print(ans)
+def solve(part1):
+    start = ('start', set(['start']), None)  # This is a node, position, path_history, and whether visited a single small cave twice
+    ans = 0
+    # We initialize or deck!
+    # Every value on our deck is a tuple containing current position, neighbors and wether it has visited twice
+    Q = deque([start])
+
+    while Q:  # while there are elements on the deque
+        # we pop a node (removes it from deque) and create consecutive subpaths depending on the adjacent nodes
+        current_position, current_path, visited_twice = Q.popleft()
+        if current_position == 'end':  # we reach the end the path is completely remove from the deque (memory efficient!)
+            ans += 1
+            continue
+        # we iterate over the list that contains the adjacent points to the current position
+        for position in next_steps[current_position]:
+            if position not in current_path:
+                new_path = set(current_path)
+                if position.lower() == position:  # same as position.islower()
+                    new_path.add(position)  # if it is lowercase, then append to new path if its uppercase don't added to new path
+                Q.append((position, new_path, visited_twice))  # bifurcation creates a new path
+            elif position in current_path and visited_twice is None and position not in ['start', 'end'] and not part1:
+                Q.append((position, current_path, position))  # bifurcation creates a new path
+    return ans
+
+
+print(solve(part1 = True))
+print(solve(part1 = False))
