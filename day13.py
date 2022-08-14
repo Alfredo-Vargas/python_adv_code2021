@@ -57,15 +57,15 @@ for point in points:
 print(f"Final paper dimensions are: {max_x} x {max_y}\n")
 
 
-transparent_paper = np.chararray((max_x + 1, max_y + 1), unicode=True)
+transparent_paper = np.chararray((max_y + 1, max_x + 1), unicode=True)
 print(transparent_paper.shape)
-for i in range(max_x + 1):
-    for j in range(max_y + 1):
+for i in range(max_y + 1):
+    for j in range(max_x + 1):
         if (i, j) in answer_part2:
             transparent_paper[i, j] = str('#')
         else:
             transparent_paper[i, j] = str('.')
 
 np.set_printoptions(linewidth=160)
-print(transparent_paper.transpose())
+print(transparent_paper)
 
