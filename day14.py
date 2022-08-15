@@ -20,19 +20,19 @@ for line in file_content:
     insertion_rules[key] = value
 
 polymer = list(template)
-N = 40  # number of iterations
+N = 10  # number of iterations
 for _ in range(N):
     temp_polymer = polymer.copy()
     for i in range(len(polymer) - 1):
         key = polymer[i] + polymer[i + 1]
         value = insertion_rules[key]
         temp_polymer.insert(2 * i + 1, value)
-    polymer = temp_polymer.copy()
+    polymer = temp_polymer
+    print("".join(polymer))
 
-
-frequency_counter = dict(Counter(polymer))
-
-max_value = max(frequency_counter.values())
-min_value = min(frequency_counter.values())
-
-print(max_value - min_value)
+# frequency_counter = dict(Counter(polymer))
+#
+# max_value = max(frequency_counter.values())
+# min_value = min(frequency_counter.values())
+#
+# print(max_value - min_value)

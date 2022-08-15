@@ -2,7 +2,6 @@
 
 # Day 13 part 1 and 2
 import sys
-import numpy as np
 
 file = sys.argv[1] if len(sys.argv) > 1 else 'please input the 13 day data'
 
@@ -23,15 +22,12 @@ for line in open(file):
         instructions.append((a[-1], int(b)))
 
 def mirror_point(instruction, point):
-    global x0_max, y0_max
     if instruction[0] == 'x':
         if point[0] > instruction[1]:
             point[0] = instruction[1] - (point[0] - instruction[1])
-            x0_max = instruction[1]
     else:
         if point[1] > instruction[1]:
             point[1] = instruction[1] - (point[1] - instruction[1])
-            y0_max = instruction[1]
 
 
 for i in range(len(instructions)):
@@ -40,7 +36,7 @@ for i in range(len(instructions)):
         for point in points:
             temp_tuple = tuple(point)
             answer_part1.add(temp_tuple)
-        print(f"The number of points after the first fold is: {len(answer_part1)}")
+        print(f"The number of points after the first fold is: {len(answer_part1)}\n")
     for point in points:
         mirror_point(instructions[i], point)
 
@@ -56,16 +52,11 @@ for point in points:
     answer_part2.add(temp_tuple)
 print(f"Final paper dimensions are: {max_x} x {max_y}\n")
 
-
-transparent_paper = np.chararray((max_y + 1, max_x + 1), unicode=True)
-print(transparent_paper.shape)
-for i in range(max_y + 1):
-    for j in range(max_x + 1):
+print(f"The code to activate the infrared thermal imaging camera system is:\n")
+for j in range(max_y + 1):
+    for i in range(max_x + 1):
         if (i, j) in answer_part2:
-            transparent_paper[i, j] = str('#')
+            print("#", end=" ")
         else:
-            transparent_paper[i, j] = str('.')
-
-np.set_printoptions(linewidth=160)
-print(transparent_paper)
-
+            print(" ", end=" ")
+    print("")
