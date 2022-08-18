@@ -1,146 +1,115 @@
+import sys
+import heapq
+import itertools
+from collections import defaultdict, Counter, deque
+
+sys.setrecursionlimit(int(1e6))
+
+infile = sys.argv[1] if len(sys.argv)>1 else '15.in'
+
+G = []
+for line in open(infile):
+    G.append([int(x) for x in line.strip()])
+R = len(G)
+C = len(G[0])
+DR = [-1,0,1,0]
+DC = [0,1,0,-1]
+
+def solve(n_tiles):
+    D = [[None for _ in range(n_tiles*C)] for _ in range(n_tiles*R)]
+    Q = [(0,0,0)]
+    while Q:
+        (dist,r,c) = heapq.heappop(Q)
+        if r<0 or r>=n_tiles*R or c<0 or c>=n_tiles*C:
+            continue
+
+        val = G[r%R][c%C] + (r//R) + (c//C)
+        while val > 9:
+            val -= 9
+        rc_cost = dist + val
+
+        if D[r][c] is None or rc_cost < D[r][c]:
+            D[r][c] = rc_cost
+        else:
+            continue
+        if r==n_tiles*R-1 and c==n_tiles*C-1:
+            break
+
+        for d in range(4):
+            rr = r+DR[d]
+            cc = c+DC[d]
+            heapq.heappush(Q, (D[r][c],rr,cc))
+    return D[n_tiles*R-1][n_tiles*C-1] - G[0][0]
+
+print(solve(1))
+print(solve(5))
 # Advent of Code 2021
 
-# Day 14 part 1 and 2
-import sys
-import numpy as np
+# Day 15 part 1 and 2
+# import sys
+# import numpy as np
+# from collections import deque
+#
+# file = sys.argv[1] if len(sys.argv) > 1 else 'please input the 15 day data'
+#
+# # read contents
+# pre_map = []
+# for line in open(file):
+#     pre_map.append([int(x) for x in line.rstrip()])
+#
+# risk_map = {}
+# def add_risks(i, j):
+#     if (i, j) in risk_map:
+#         return risk_map[(i, j)]
+#     if i < 0 or i >= len(pre_map) or j < 0 or j >= len(pre_map[i]):
+#         return 1e9
+#     if i == len(pre_map) - 1 and j == len(pre_map[i]) - 1:
+#         return pre_map[i][j]
+#     risk = pre_map[i][j] + min(add_risks(i + 1, j), add_risks(i, j + 1))
+#     risk_map[(i, j)] = risk
+#     return risk
+#
+# print(add_risks(0, 0) - pre_map[0][0])
 
-file = sys.argv[1] if len(sys.argv) > 1 else 'please input the 15 day data'
-
-# read contents
-pre_map = []
-for line in open(file):
-    row = [int(x) for x in line.rstrip()]
-    pre_map.append(row)
-
-# store the contents on a 2x2 matrix
-risk_map = np.zeros((len(pre_map), len(pre_map[0])), dtype=int)
-for i in range(len(pre_map)):
-    risk_map[i, :] = pre_map[i]
-
-n_rows = len(risk_map[:, 0]) - 1
-n_cols = len(risk_map[0, :]) - 1
-
-number_of_moves = n_rows + n_cols
-print(f"Number of moves is {number_of_moves}")
-
-def next_sum(px, py, current_sum):
-    if (px > n_cols or py > n_rows):
-        return (0, 0)
-    elif px == n_cols and py == n_rows:
-        answer = current_sum + risk_map[n_rows, n_cols]
-        return (answer, answer)
-    elif px == n_cols and py < n_rows:
-        down_sum = current_sum + risk_map[px + 1, py]
-        return (999, down_sum)
-    elif px < n_cols and py == n_rows:
-        right_sum = current_sum + risk_map[px, py + 1]
-        return (right_sum, 999)
-    else:
-        right_sum = current_sum + risk_map[px, py + 1]
-        down_sum = current_sum + risk_map[px + 1, py]
-        return (right_sum, down_sum)
-
-
-def explore_path(i, j, path_value):
-    r, d = next_sum(i, j, path_value)
-
-    rr, rd = next_sum(i, j + 1, r)
-    dr, dd = next_sum(i + 1, j, d)
-
-    rrr, rrd = next_sum(i, j + 2, rr)
-    drr, drd = next_sum(i + 1, j + 1, rd)
-    rdr, rdd = next_sum(i + 1, j + 1, dr)
-    ddr, ddd = next_sum(i + 2, j, dd)
-
-    minimum = min(rrr, rrd, drr, drd, rdr, rdd, ddr, ddd)
-    right_list = [rrr, rrd, drr, drd]
-    down_list = [rdr, rdd, ddr, ddd]
-
-    if minimum in right_list and minimum in down_list:
-        return "ambiguous"
-    elif minimum in right_list:
-        return "right"
-    else:
-        return "down"
-
-i, j = 0, 0
-path_value = 0
-# number_of_moves = 10  # do for max - 2 to avoid getting out of the grid 
-while number_of_moves > 0:
-    if i < n_rows and j < n_cols:
-        direction = explore_path(i, j, path_value)
-        if direction == "ambigous":
-            print("Is ambiguous")
-            break
-        if direction == "right":
-            j = j + 1  # we walk right
-        else:
-            i = i + 1  # we walk down
-    elif i == n_cols and j != n_rows:
-        j = j + 1  # we can only walk down
-    elif i != n_cols and j == n_rows:
-        i = i + 1  # we can only wak right
-    path_value += risk_map[i, j]
-    number_of_moves -= 1
-    print("------------------------------")
-    print(f"At point ({i}, {j}) the path value is : {path_value}")
-    if i == n_rows and j == n_cols:
-        break
-
-print(path_value)
-
-# Wrong Answer:
-# 810  # Too high
-
-# def cummulative_sum(px, py, n_rows, n_cols):
-#     # calculates the cummulative sum two steps ahead
-#     if (px < n_rows - 1 and py < n_cols - 1):
-#         rr = risk_map[px, py] + risk_map[px + 1, py] + risk_map[px + 2, py]
-#         rd = risk_map[px, py] + risk_map[px + 1, py] + risk_map[px + 1, py + 1]
-#         dr = risk_map[px, py] + risk_map[px, py + 1] + risk_map[px + 1, py + 1]
-#         dd = risk_map[px, py] + risk_map[px, py + 1] + risk_map[px, py + 2]
-#         return min(rr, rd, dr, dd)
-#     elif (px < n_rows and py < n_cols - 1):
-#         rd = risk_map[px, py] + risk_map[px + 1, py] + risk_map[px + 1, py + 1]
-#         dr = risk_map[px, py] + risk_map[px, py + 1] + risk_map[px + 1, py + 1]
-#         dd = risk_map[px, py] + risk_map[px, py + 1] + risk_map[px, py + 2]
-#         return min(rd, dr, dd)
-#     elif (px < n_rows and py < n_cols):
-#         rd = risk_map[px, py] + risk_map[px + 1, py] + risk_map[px + 1, py + 1]
-#         dr = risk_map[px, py] + risk_map[px, py + 1] + risk_map[px + 1, py + 1]
-#         return min(rd, dr)
-#     elif (px < n_rows - 1 and py < n_cols):
-#         rr = risk_map[px, py] + risk_map[px + 1, py] + risk_map[px + 2, py]
-#         rd = risk_map[px, py] + risk_map[px + 1, py] + risk_map[px + 1, py + 1]
-#         dr = risk_map[px, py] + risk_map[px, py + 1] + risk_map[px + 1, py + 1]
-#         return min(rr, rd, dr)
-#     elif (px == n_rows):
-#         if py < n_cols - 1:
-#             dd = risk_map[px, py] + risk_map[px, py + 1] + risk_map[px, py + 2]
-#         elif py < n_cols:
-#             dd = risk_map[px, py] + risk_map[px, py + 1]  # check only one step ahead!
-#         return dd
-#     elif (py == n_cols):
-#         if px < n_rows - 1:
-#             rr = risk_map[px, py] + risk_map[px + 1, py] + risk_map[px + 2, py]
-#         elif px < n_rows:
-#             rr = risk_map[px, py] + risk_map[px + 1, py]  # check only one step ahead
-#         return rr
-
-# def next_sum(px, py):
-#     if px == n_cols and py == n_rows:
-#         return 0
-#     if px < n_cols and py < n_rows:
-#         sum_right = risk_map[px, py] + risk_map[px + 1, py]
-#         sum_down = risk_map[px, py] + risk_map[px, py + 1]
-#         if sum_right <= sum_down:
-#             return sum_right + next_sum(px + 1, py)
-#         else:
-#             return sum_down + next_sum(px, py + 1)
-#     elif px < n_cols and py == n_rows:
-#         sum_right = risk_map[px, py] + risk_map[px + 1, py]
-#         return sum_right + next_sum(px + 1, py)
-#     elif px == n_cols and py < n_rows:
-#         sum_down = risk_map[px, py] + risk_map[px, py + 1]
-#         return sum_down + next_sum(px, py + 1)
+# # store the contents on a 2x2 matrix
+# risk_map = np.zeros((len(pre_map), len(pre_map[0])), dtype=int)
+# for i in range(len(pre_map)):
+#     risk_map[i, :] = pre_map[i]
+#
+# n_rows = len(risk_map[:, 0])
+# n_cols = len(risk_map[0, :])
+#
+# # INSIGHT: Calculate the risk map first !!!
+# # This risk_map will point the minimum value at each location
+# # the borders of the risk_map are contributed only by one position
+#
+# risk_map[0, 0] = 0  # we do not count how the initial position
+# for i in range(1, n_cols, 1):
+#     risk_map[0, i] = risk_map[0, i - 1]+ risk_map[0, i]
+# for i in range(1, n_cols, 1):
+#     risk_map[i, 0] = risk_map[i - 1, 0] + risk_map[i, 0] 
+#
+# for i in range(1, n_rows, 1):
+#     for j in range(1, n_cols, 1):
+#         risk_map[i, j] = risk_map[i, j] + min(risk_map[i - 1, j], risk_map[i, j - 1])
+#
+# print("Answer part 1:")
+# print(risk_map[n_rows - 1, n_cols - 1])
+#
+# # Wrong answers:
+# # 697
+# # 700
+# # 701
+# # 702  # Too high
+# # 704  # Too high
+# # 810  # Too high
+#
+# # Prepare the input data for part 2
+# big_risk_map = np.zeros((len(pre_map) * 5, len(pre_map[0]) * 5), dtype=int) 
+#
+# # print(big_risk_map.shape)
+# n_rows_bg = len(big_risk_map[:, 0])
+# n_cols_bg = len(big_risk_map[0, :])
+# # for i in range(n_rows_bg):
+# #     for j in range(n_cols_bg):
 #
