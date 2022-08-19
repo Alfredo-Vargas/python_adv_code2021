@@ -43,10 +43,11 @@ def next_sum(i, j, current_sum, steps):
   return (right_sum, down_sum)
 ```
 
-```python
-def factorial(S):
-  if S == 1:
-    return 1
-  else:
-    return S * factorial(S - 1)
-```
+# Review of previous approach and final solution
+## Review
+- The above approach is inconvenient/wrong for the following reasons:
+  1. It assumes that the only possible moves involve, right or down. What if we would like to explore from bottom right towards top left? (This is inconvenient)
+  2. Moreover, one could have particular geometries were the shortest path (or path with the least risk) is includes movements other moves such going up or left. The only restriction should be the boundary. (This was wrongly omitted, although for the Day 15 of Advent of Code sometimes there are no need to include the other movements, test and part 1 worked perfectly with just exploring only the neighbour to the right or to the bottom. Nevertheless for part two one must include the other types of exploration: up and left.
+  3. Third the above approach demanded to much memory allocations as it must store the total amount of nodes which at every step doubles (if we include top and left moves, it quadruples!)
+
+## Solution, applying the Dijkstra Algorithm (finding the shortest path)
