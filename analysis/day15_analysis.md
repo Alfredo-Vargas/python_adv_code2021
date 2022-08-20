@@ -51,3 +51,25 @@ def next_sum(i, j, current_sum, steps):
   3. Third the above approach demanded to much memory allocations as it must store the total amount of nodes which at every step doubles (if we include top and left moves, it quadruples!)
 
 ## Solution, applying the Dijkstra Algorithm (finding the shortest path)
+- Dijkstra algorithm is used to find the shortest path (wikipedia reference)
+- See the following pseudocode
+```c
+function Dijkstra(Graph, source):
+    for each vertex v in Graph.Vertices:
+        dist[v] ← INFINITY
+        prev[v] ← UNDEFINED
+        add v to Q
+    dist[source] ← 0
+    
+    while Q is not empty:
+        u ← vertex in Q with min dist[u]
+        remove u from Q
+        
+        for each neighbor v of u still in Q:
+            alt ← dist[u] + Graph.Edges(u, v)
+            if alt < dist[v] and dist[u] is not INFINITY:
+                dist[v] ← alt
+                prev[v] ← u
+
+    return dist[], prev[]
+```

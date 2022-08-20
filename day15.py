@@ -1,3 +1,5 @@
+# credits for the solution to:
+# https://github.com/jonathanpaulson/AdventOfCode/blob/master/2021/15.py
 import sys
 import heapq
 
@@ -13,6 +15,8 @@ n_cols = len(risk_map[0])
 
 # Neighbour Points for Dijkstra Exploration
 # (row, column) + neighbour = up, right, down, left
+# neighbours = [(0, 1), (1, 0)]  # works for only for test
+# neighbours = [(0, 1), (1, 0), (0, -1)] # works for test and part 1
 neighbours = [(-1, 0), (0, 1), (1, 0), (0, -1)]
 
 # We implement Dijkstra algorithm
@@ -22,7 +26,7 @@ def solve(n_tiles):
     root_node = (0, 0, 0) # Top left node value (risk=0, i=0, j=0)
     HeapQueue = [root_node]
     while HeapQueue:
-        (risk, i, j) = heapq.heappop(HeapQueue)
+        (risk, i, j) = heapq.heappop(HeapQueue)  # the highest (parent node is popped)
         # we check for values less than zero because we explore in all four possible directions
         if i < 0 or i >= n_tiles * n_rows or j < 0 or j >= n_tiles * n_cols:
             continue
@@ -41,7 +45,8 @@ def solve(n_tiles):
 
         # If we have not visited Dijkstra map before or the risk_value is lower
         # than the cummulative risk at the Dijkstra map then:
-        if DijkstraMap[i][j] is None or ij_risk < DijkstraMap[i][j]:
+        # this conditions establish that we built a min Heap (parent node is less than its children)
+        if DijkstraMap[i][j] is None or ij_risk < DijkstraMap[i][j]:  
             DijkstraMap[i][j] = ij_risk
         else:  # we have visited Dijkstra map or the risk value is higher
             continue
@@ -59,3 +64,5 @@ def solve(n_tiles):
 
 print(solve(1))
 print(solve(5))
+# solution part 1 is: 696
+# solution part 1 is: 2952
