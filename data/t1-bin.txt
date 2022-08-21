@@ -1,0 +1,9 @@
+100 010 1 00000000001 001010100000000001101010000000000000101111010001111000
+
+100 010 - (version 4, id 2)
+packet id is different than 4 (2)
+then it is an operator
+
+length type is 1 --> 11 bits
+subpacket length is 00000000001
+

@@ -23,7 +23,7 @@ hex_to_bin = {
     "F": "1111",
 }
 
-bin_to_dec = {"100": 4, "110": 6}
+# bin_to_dec = {"100": 4, "110": 6, "001": 1}
 
 bin_packet = ""
 for char in packet:
@@ -31,20 +31,31 @@ for char in packet:
 # print(bin_packet)
 
 def get_version_id(bin_packet):
-    packet_version = bin_to_dec[bin_packet[0:3]]
-    packet_id = bin_to_dec[bin_packet[3:6]]
+    packet_version = int(bin_packet[0:3], 2)
+    packet_id = int(bin_packet[3:6], 2)
     return (packet_version, packet_id)
 
-print(get_version_id(bin_packet))
 
-# if id == 4 then it is a literal_value, else it is an operator
+print(f"The whole binary input is: \n {bin_packet}")
+packet_version, packet_id = get_version_id(bin_packet)
+print(f"The version and id are: {get_version_id(bin_packet)}")
 
-groups = bin_packet[6:]
-n_groups = len(bin_packet[6:]) // 5
+if packet_id == 4:
+    groups = bin_packet[6:]
+    n_groups = len(bin_packet[6:]) // 5
 
-literal_value = ""
-for i in range(n_groups):
-    group = groups[5*i:(i+1)*5]
-    literal_value += group[1:]
-numerical_value = int(literal_value, 2)    
+    literal_value = ""
+    for i in range(n_groups):
+        group = groups[5*i:(i+1)*5]
+        literal_value += group[1:]
+    numerical_value = int(literal_value, 2)    
+    print(f"It was a literal packet with value: {numerical_value}")
+else:
+    length_type_id = 15 if bin_packet[6] == "0" else 11
+    print(f"Length type id is: {length_type_id}")
+    subpackets_length = int(bin_packet[7:7+length_type_id], 2)
+    print(f"Subpackets length type is: {subpackets_length}")
+    if subpackets_length == 1:
+        print(bin_packet[6 + length_type_id:])
+        print(get_version_id(bin_packet[6 + length_type_id:]))
 
