@@ -25,17 +25,26 @@ hex_to_bin = {
 
 bin_to_dec = {"100": 4, "110": 6}
 
+bin_packet = ""
+for char in packet:
+    bin_packet += hex_to_bin[char]
+# print(bin_packet)
 
-def get_version_id(packet):
-    first_nibble = hex_to_bin[packet[0]]
-    second_nibble = hex_to_bin[packet[1]]
-    packet_version = bin_to_dec[first_nibble[0:3]]
-    packet_id = bin_to_dec[first_nibble[-1] + second_nibble[0:2]]
+def get_version_id(bin_packet):
+    packet_version = bin_to_dec[bin_packet[0:3]]
+    packet_id = bin_to_dec[bin_packet[3:6]]
     return (packet_version, packet_id)
 
-def get_next_group(packet, position):
+print(get_version_id(bin_packet))
 
-second_nibble = hex_to_bin[packet[1]]
-third_nibble = hex_to_bin[packet[2]]
-group = next_five
-while (group[0] == "1")
+# if id == 4 then it is a literal_value, else it is an operator
+
+groups = bin_packet[6:]
+n_groups = len(bin_packet[6:]) // 5
+
+literal_value = ""
+for i in range(n_groups):
+    group = groups[5*i:(i+1)*5]
+    literal_value += group[1:]
+numerical_value = int(literal_value, 2)    
+
