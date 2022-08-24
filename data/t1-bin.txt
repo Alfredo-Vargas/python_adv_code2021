@@ -1,9 +1,38 @@
-100 010 1 00000000001 001010100000000001101010000000000000101111010001111000
+100 010 1 00000000001
+001010100000000001101010000000000000101111010001111000
 
 100 010 - (version 4, id 2)
-packet id is different than 4 (2)
-then it is an operator
+packet id is 2 != 4, thererefore it is an operator
 
 length type is 1 --> 11 bits
-subpacket length is 00000000001
+subpacket length is 00000000001 (number of subpackets)
+------------------------------------------------------------
+100 010 1 00000000001
+001 010 1 00000000001
+101010000000000000101111010001111000
 
+001 010 - (version 1, id 2)
+packet id is 2 != 4, therefore it is an operator
+
+length type is 1 --> 11 bits
+subpacket length is 00000000001 (number of subpackets)
+------------------------------------------------------------
+100 010 1 00000000001
+001 010 1 00000000001
+101 010 0 000000000001011
+11010001111000
+
+101 010 - version(5, id 2)
+packet id is 2 != 4, therefore it is an operator
+
+length type is 0 --> 15 bits
+total length in bits of subpackets is 000000000001011 (11)
+------------------------------------------------------------
+100 010 1 00000000001
+001 010 1 00000000001
+101 010 0 000000000001011 
+110 100 01111000
+
+110 - version(6, id 4)
+packet id is 4, therefor it is a literal
+------------------------------------------------------------
