@@ -35,26 +35,29 @@ def get_version_id(bin_packet):
 version_sum = 0
 cursor_position = 0
 
-while True:
+while len(bin_packet) > 6:
     packet_version, packet_id = get_version_id(bin_packet)
     print(f"The whole binary input is: {bin_packet}")
     print(f"The version and id are: {get_version_id(bin_packet)}")
     version_sum += packet_version
-    print(f"The version is: {packet_version}")
-    print(f"The version sum is: {version_sum}")
-
-    if packet_id == 4:
-        bin_packet = bin_packet[6:]
-        packet_version, packet_id = get_version_id(bin_packet)
-        break
-    else:
-        length_type = int(bin_packet[6], 2)
-        if length_type == 0:
-            cursor_position = 22
-            bin_packet = bin_packet[cursor_position:]
+    bin_packet = bin_packet[6:]  # we chop left (decapsulation)
+    in_last_group = False
+    if packet_id == 4:  # it is a literal
+        while not in_last_group:
+            group = bin_packet[0:5]
+            if group[0] == '0':
+                in_last_group = True
+            bin_packet = bin_packet[5:]
+    else:  # it is an operator
+        length_type = bin_packet[0]
+        if length_type == '1':
+            n_subpackets = int(bin_packet[1:12], 2)
+            print(f"The number of subpackets is: {n_subpackets}")
+            bin_packet = bin_packet[(n_subpackets * 11 + 1):]
         else:
-            cursor_position = 18
-            bin_packet = bin_packet[cursor_position:]
+            n_bits_in_subpacket = int(bin_packet[1:16], 2)
+            print(f"The number of n_bits in subpacket is : {n_bits_in_subpacket}")
+            bin_packet = bin_packet[n_bits_in_subpacket]
 
 print(version_sum)
 
