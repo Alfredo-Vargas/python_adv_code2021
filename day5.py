@@ -48,11 +48,11 @@ with open("./data/day5.txt", "r") as file:
         #     segments.append(segment)
 
         # For part two also diagonals at 45 degrees are considered
-        if (p1[0] != p2[0] and p1[1] != p2[1]):
+        if p1[0] != p2[0] and p1[1] != p2[1]:
             a = abs((p1[1] - p2[1]) / (p1[0] - p2[0]))
         else:
             a = 0
-        if (p1[0] == p2[0] or p1[1] == p2[1] or a == 1):
+        if p1[0] == p2[0] or p1[1] == p2[1] or a == 1:
             segment = get_segment(p1, p2)
             segments.append(segment)
 
