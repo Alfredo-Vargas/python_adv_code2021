@@ -35,10 +35,6 @@ def parse_header(bin_packet):
     return (packet_version, packet_id)
 
 
-version_sum = 0
-literal_string = ""
-final_value = 0
-defined_operation = ""
 
 
 def operate(defined_operation, value, next_value):
@@ -57,65 +53,78 @@ def operate(defined_operation, value, next_value):
     elif defined_operation == "eq":
         value = 1 if value == next_value else 0
     else:
-        print(f"Non defined operation detected with value: {defined_operation}")
+        print(f"Non defined operation : {defined_operation}")
     return value
 
-
-# While there is more than a header plus a prefix which is always present
-while len(bin_packet) > 7:
-    packet_version, packet_id = parse_header(bin_packet)
-    print(f"The whole binary input is: {bin_packet}")
-    print(f"The version and id are: {parse_header(bin_packet)}")
-    version_sum += packet_version
-    # we chop left (decapsulation)
-    bin_packet = bin_packet[6:]
-    if not defined_operation:
-        if packet_id == 0:
-            defined_operation = "sum"
-            final_value = 0
-        elif packet_id == 1:
-            defined_operation = "prod"
-            final_value = 1
-        elif packet_id == 2:
-            defined_operation = "min"
-            final_value = 999
-        elif packet_id == 3:
-            defined_operation = "max"
-            final_value = 0
-        elif packet_id == 5:
-            defined_operation = "gt"
-            final_value = 0
-        elif packet_id == 6:
-            defined_operation = "lt"
-            final_value = 999
-        elif packet_id == 7:
-            defined_operation = "eq"
-            final_value = 0
-        else:
-            print(f"Non defined operation with value: {defined_operation}")
+def get_operation(packet_id):
+    def_op = ""
+    start_value = 0
+    if packet_id == 0:
+        def_op = "sum"
+        start_value = 0
+    elif packet_id == 1:
+        def_op = "prod"
+        start_value = 1
+    elif packet_id == 2:
+        def_op = "min"
+        start_value = 999
+    elif packet_id == 3:
+        def_op = "max"
+        start_value = 0
+    elif packet_id == 5:
+        def_op = "gt"
+        start_value = 0
+    elif packet_id == 6:
+        def_op = "lt"
+        start_value = 999
+    elif packet_id == 7:
+        def_op = "eq"
+        start_value = 0
+    else:
+        print(f"Non defined operation associated to id: {packet_id}")
+    print(f"The operation is: {def_op}")
+    return (def_op, start_value)
 
 
-    in_last_group = False  # used for literal values
-    if packet_id == 4:  # it is a literal
-        while not in_last_group:
-            group = bin_packet[0:5]
-            literal_string += bin_packet[1:5]
-            if group[0] == "0":
-                in_last_group = True
-            bin_packet = bin_packet[5:]  # we chop 5 bits left
-        final_value = operate(defined_operation, final_value, int(literal_string, 2))
-    else:  # it is an operator
-        length_type = bin_packet[0]
-        if length_type == "0":
-            n_bits_in_subpacket = int(bin_packet[1:16], 2)
-            print(f"Number of bits in subpacket is : {n_bits_in_subpacket}")
-            bin_packet = bin_packet[16:]
-        else:
-            n_subpackets = int(bin_packet[1:12], 2)
-            print(f"The number of subpackets is: {n_subpackets}")
-            bin_packet = bin_packet[12:]
+def get_value(bin_packet):
+    version_sum = 0
+    fr = 0  # final_result
+    # While there is more than a header plus a prefix which is always present
+    while len(bin_packet) > 7:
+        packet_version, packet_id = parse_header(bin_packet)
+        print(f"The whole binary input is: {bin_packet}")
+        print(f"The version and id are: {packet_version, packet_id}")
+        version_sum += packet_version
+        # we chop left (decapsulation)
+        bin_packet = bin_packet[6:]
+        # get defined operation and start value
+        defined_operation, fr = get_operation(bin_packet)
 
+        if packet_id == 4:  # it is a literal
+            in_last_group = False  # used for literal values
+            literal_string = ""
+            while not in_last_group:
+                group = bin_packet[0:5]
+                literal_string += bin_packet[1:5]
+                if group[0] == "0":
+                    in_last_group = True
+                bin_packet = bin_packet[5:]  # we chop 5 bits left
+            fr = int(literal_string, 2)
+        else:  # it is an operator
+            length_type = bin_packet[0]
+            if length_type == "0":
+                n_bits_in_subpacket = int(bin_packet[1:16], 2)
+                print(f"Number of bits in subpacket is : {n_bits_in_subpacket}")
+                bin_packet = bin_packet[16:16+n_bits_in_subpacket]
+                fr = get_value(bin_packet)
+                # fr = operate(defined_operation, fr, bin_packet)
+            else:
+                n_subpackets = int(bin_packet[1:12], 2)
+                print(f"The number of subpackets is: {n_subpackets}")
+                bin_packet = bin_packet[12:]
+    return fr
 
 # Gets answer of part 1
-print(version_sum)
-print(final_value)
+# print(version_sum)
+# Gets answer of part 2
+print(f"The result of the operation is: {get_value(bin_packet)}")
