@@ -24,3 +24,44 @@ flowchart LR
   LTID{Is length type 0?} --> |YES|GL[Get Length in bits of \n subpackets contained];
   LTID{Is length type 0?} --> |NO|GN[Get number of subpackets \n contained immediately after];
 ```
+
+### Second Part
+
+- The flow diagram when one needs to consider the operations is as follows:
+
+```mermaid
+flowchart
+  START[binary\npacket];
+  FINISHED{Has subpackets?};
+  PARSE[Parse\n Version & ID];
+  CHECK{Is ID = 4?}
+  LITERAL[Process Literal];
+  OPERATOR[Process Operator];
+  RETURNL[Return Literal];
+  GETLT{IS LENGTH TYPE 0?};
+  NBS[Get Nbits in subpacket\n Encoded in next 15 bits];
+  NS[Get N of Subpackets\nEach of 11 bits];
+  GV0[A = Start Default Value];
+  GV1[B = GET VALUE];
+  CHANGED[IF B = -1 &&\n SUM => B = 0\n PROD => B = 1\n MAX => B = 0\n MIN => B = 999];
+  OPERATE[RESULT = A OP B];
+  RETURNR[Return RESULT];
+  
+  START --> FINISHED;
+  FINISHED -->|NO| RETURN[Return -1];
+  FINISHED -->|YES| PARSE;
+  PARSE --> CHECK;
+  CHECK -->|YES| LITERAL;
+  LITERAL --> RETURNL;
+  CHECK -->|NO| OPERATOR;
+  OPERATOR --> GV0;
+  GV0 --> GETLT;
+  GETLT -->|YES| NBS;
+  GETLT -->|NO| NS;
+  NS --> GV1;
+  NBS --> GV1;
+  GV1 --> START;
+  GV1 --> CHANGED;
+  CHANGED --> OPERATE;
+  OPERATE --> RETURNR;
+```
