@@ -1,16 +1,11 @@
 import sys
-import math
 
 infile = sys.argv[1] if len(sys.argv) > 1 else "17.in"
-xraw, yraw = open(infile).read().strip()[13:].split(",")  # .split(":")
+xraw, yraw = open(infile).read().strip()[13:].split(",")
 pxmin, pxmax = xraw.strip()[2:].split("..")
 pymin, pymax = yraw.strip()[2:].split("..")
 xmin, xmax = int(pxmin), int(pxmax)
 ymin, ymax = int(pymin), int(pymax)
-
-print(xmin, xmax)
-print(ymin, ymax)
-
 
 #  we guess a reasonable time interval where that should happen
 t_range = [i for i in range(1, 2000)]
@@ -18,7 +13,7 @@ t_range = [i for i in range(1, 2000)]
 # we guess a reasonable vx0 velocity to be evaluated
 vx0_range = [vx0 for vx0 in range(0, 2000)]
 # we guess a reasonable vy0 velocity to be evaluated
-vy0_range = [vy0 for vy0 in range(0, 2000)]
+vy0_range = [vy0 for vy0 in range(-2000, 2000)]
 
 initial_x = []
 initial_y = []
@@ -37,7 +32,7 @@ def hit_target(pos, r):
 
 
 for vx0 in vx0_range:
-    xpos, ypos, v0 = 0, 0, vx0
+    xpos, v0 = 0, vx0
     for t in t_range:
         xpos += v0
         v0 = v0 - 1 if v0 > 0 else 0
@@ -46,7 +41,7 @@ for vx0 in vx0_range:
 
 
 for vy0 in vy0_range:
-    xpos, ypos, v0 = 0, 0, vy0
+    ypos, v0 = 0, vy0
     for t in t_range:
         ypos += v0
         v0 = v0 - 1
@@ -80,15 +75,17 @@ for v in filtered:
     if v[0] == vx0:
         v0.append(v)
 
-# print(v0[0][1])
-# height = (v0[0][1] ** 2) / 2
-# print(height)
-
-x0, y0, vz = 0, 0, v0[0][1]
+# We calculate the maximum height
+y0, vz = 0, v0[0][1]
 for t in t_range:
     y0 += vz
     vz = vz - 1
     if vz == 0:
-        print(y0)
+        print(f"The maximum height is: {y0}.\n")
         break
 
+set_selected = set(selected)
+print(len(set_selected))
+
+# Part 1 answer: 12090
+# Part 2 answer: 5059
