@@ -1,18 +1,16 @@
 import sys
 
-infile = sys.argv[1] if len(sys.argv) > 1 else "18.in"
+# infile = sys.argv[1] if len(sys.argv) > 1 else "18.in"
 
 
 class Node:
     """A Node for the binary tree (SnailFishNumber)"""
 
-    def __init__(self, leftchild=None, rightchild=None, value=-1) -> None:
-        if value != -1:
-            self.value: int = value
-        if leftchild is not None:
-            self.leftchild: Node = leftchild
-        if rightchild is not None:
-            self.rightchild: Node = rightchild
+    def __init__(self, parent=None, leftchild=None, rightchild=None, value=-1) -> None:
+        self.parent: Node = parent
+        self.value: int = value
+        self.leftchild: Node = leftchild
+        self.rightchild: Node = rightchild
 
 
 class SnailFishNumber:
@@ -21,43 +19,45 @@ class SnailFishNumber:
     def __init__(self, root: Node) -> None:
         self.root = root
 
-    def get_height(self, parent: Node) -> int:
-        if parent is None:
+    def get_height(self, node: Node) -> int:
+        if node is None:
             return -1
-        leftchild_height = self.get_height(parent.leftchild)
-        rightchild_height = self.get_height(parent.rightchild)
+        leftchild_height = self.get_height(node.leftchild)
+        rightchild_height = self.get_height(node.rightchild)
         return max(leftchild_height, rightchild_height) + 1
 
-    def read_snailfish_number(self, head=None, values: list) -> Node:
-        if head is None:
-            head: Node = self.root
-        if len(values) <= 1:
-            return self.root
+    def read_snailfish_number(self, head: Node, values: list) -> None:
+        left_term, right_term = values[0], values[1]
+        left_child = Node()
+        right_child = Node()
+        head.leftchild = left_child
+        head.rightchild = right_child
+        if isinstance(left_term, int):
+            head.leftchild.value = left_term
         else:
-            left_element, right_element = values[0], values[1]
-            left_node: Node = Node()
-            right_node: Node = Node()
-            head.leftchild = left_node
-            head.rightchild = right_node
-            if left_element.isinstance(int):
-                head.leftchild.value = left_element
-            if right_element.isinstance(int):
-                head.rightchild.value = right_element
-        return self.root
+            self.read_snailfish_number(head.leftchild, left_term)
+        if isinstance(right_term, int):
+            head.rightchild.value = right_term
+        else:
+            self.read_snailfish_number(head.rightchild, right_term)
 
 
-# llc = Node(None, None, 0)
-# lrc = Node(None, None, 0)
-# lc = Node(llc, lrc, 0)
-# rc = Node(None, None, 0)
-# root = Node(lc, rc, 0)
+# for line in open(infile):
+#     print(line.rstrip()[1:-1].split(","))
+def main() -> None:
+    # emtpy nodes have value equal to -1
+    # the root node has value -2
+    root = Node(None, None, None, -2)
+    sfn = SnailFishNumber(root)
+    print(f"The value of the root value is {sfn.root.value}")
+    print(f"The height of the SnailFishNumber is: {sfn.get_height(sfn.root)}")
+    # reading a snail fish number:
+    given_list = [1, 2]
+    # given_list = [1, [1, 2]]
+    sfn.read_snailfish_number(sfn.root, given_list)
+    print(f"Value of the root value is {sfn.root.value}")
+    print(f"Height of the sfn after read is: {sfn.get_height(sfn.root)}")
 
-# snf_number = SnailFishNumber(root)
 
-# height = snf_number.get_height(root)
-
-# print(f"The height of this tree is: {height}")
-root = Node(None, None, 0)
-
-for line in open(infile):
-    print(line.rstrip()[1:-1].split(","))
+if __name__ == "__main__":
+    main()
