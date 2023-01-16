@@ -41,6 +41,15 @@ class SnailFishNumber:
         else:
             self.read_snailfish_number(head.rightchild, right_term)
 
+    def show_snail_fish_number(self, node: Node) -> None:
+        print(f"The node value is {node.value} and its height is: {self.get_height(node)}")
+        left_term = node.leftchild
+        right_term = node.rightchild
+        if isinstance(left_term, Node):
+            self.show_snail_fish_number(left_term)
+        if isinstance(right_term, Node):
+            self.show_snail_fish_number(right_term)
+
 
 # for line in open(infile):
 #     print(line.rstrip()[1:-1].split(","))
@@ -50,14 +59,20 @@ def main() -> None:
     root = Node(None, None, None, -2)
     sfn = SnailFishNumber(root)
     print(f"The value of the root value is {sfn.root.value}")
-    print(f"The height of the SnailFishNumber is: {sfn.get_height(sfn.root)}")
+    print(f"Height of the sfn at start is: {sfn.get_height(sfn.root)}")
     # reading a snail fish number:
-    given_list = [1, 2]
+    # given_list = [1, 2]
     # given_list = [1, [1, 2]]
+    given_list = [[0, [2, 11]], [1, 2]]
     sfn.read_snailfish_number(sfn.root, given_list)
     print(f"Value of the root value is {sfn.root.value}")
     print(f"Height of the sfn after read is: {sfn.get_height(sfn.root)}")
+    print("\nThe sfn values are:")
+    sfn.show_snail_fish_number(sfn.root)
 
 
 if __name__ == "__main__":
     main()
+
+# TODO:
+# add the depth function to implement explossions
