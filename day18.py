@@ -63,15 +63,17 @@ class SnailFishNumber:
     def explode(self) -> Node:
         if self.root.height() < 5:
             print(f"Height of sfn is too low: {self.root.height()} (min 5)")
+            print("No explosion performed")
             return self.root
 
         # identify the Node to remove using traverse walking
         head = self.root
-        while head.depth <= 4:
-            if head.leftchild.height() < head.rightchild.height():
-                head = head.rightchild
-            else:
-                head = head.leftchild
+        while head.leftchild is not None and head.rightchild is not None:
+            head = (
+                head.rightchild
+                if head.leftchild.height() < head.rightchild.height()
+                else head.leftchild
+            )
         print(f"The node to explode is {head.value, head.height(), head.depth()}")
 
         # we explode the nood and free the memory properly
