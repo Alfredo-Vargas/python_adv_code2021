@@ -63,31 +63,25 @@ class SnailFishNumber:
     def explode(self) -> Node:
         if self.root.height() < 5:
             print(f"Height of sfn is too low: {self.root.height()} (min 5)")
+            print("No explosion performed")
             return self.root
 
         # identify the Node to remove using traverse walking
         head = self.root
-        while head.depth <= 4:
-            if head.leftchild.height() < head.rightchild.height():
-                head = head.rightchild
-            else:
-                head = head.leftchild
 
-            # if head.leftchild is not None:
-            #     head = head.leftchild
-            # else:
-            #     head = head.leftchild
+        while head.leftchild is not None and head.rightchild is not None:
+            head = head.rightchild if head.leftchild.height() < head.rightchild.height() else head.leftchild
         print(f"The node to explode is {head.value, head.height(), head.depth()}")
 
         # we explode the nood and free the memory properly
-        # head.value = 0
-        # left_value = head.leftchild.value
-        # right_value = head.rightchild.value
-        # head.leftchild.parent = None  # avoids dangling pointer
-        # head.rightchild.parent = None  # avoids dangling pointer
-        # del head.leftchild  # deallocates memory from heap
-        # del head.rightchild  # deallocates memory from heap
-        # gc.collect()  # frees the memory
+        head.value = 0
+        left_value = head.leftchild.value
+        right_value = head.rightchild.value
+        head.leftchild.parent = None  # avoids dangling pointer
+        head.rightchild.parent = None  # avoids dangling pointer
+        del head.leftchild  # deallocates memory from heap
+        del head.rightchild  # deallocates memory from heap
+        gc.collect()  # frees the memory
 
         return self.root
 
@@ -103,7 +97,10 @@ def main() -> None:
     # given_list = [1, 2]
     # given_list = [1, [1, 2]]
     # given_list = [[0, [2, 11]], [1, 2]]
-    given_list = [[[[[9, 8], 1], 2], 3], 4]
+    # given_list = [[[[[9, 8], 1], 2], 3], 4]
+    # given_list = [7,[6,[5,[4,[3,2]]]]]
+    # given_list = [[6,[5,[4,[3,2]]]],1]
+    given_list = [[3, [2, [1, [7, 3]]]], [6, [5, [4, [3, 2]]]]]
     sfn.read_snailfish_number(sfn.root, given_list)
     print(f"Value of the root value is {sfn.root.value}")
     print(f"Height of the sfn after read is: {sfn.root.height()}")
