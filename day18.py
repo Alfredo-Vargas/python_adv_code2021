@@ -72,38 +72,36 @@ class SnailFishNumber:
                 head = head.rightchild
             else:
                 head = head.leftchild
-
-            # if head.leftchild is not None:
-            #     head = head.leftchild
-            # else:
-            #     head = head.leftchild
         print(f"The node to explode is {head.value, head.height(), head.depth()}")
 
         # we explode the nood and free the memory properly
-        # head.value = 0
-        # left_value = head.leftchild.value
-        # right_value = head.rightchild.value
-        # head.leftchild.parent = None  # avoids dangling pointer
-        # head.rightchild.parent = None  # avoids dangling pointer
-        # del head.leftchild  # deallocates memory from heap
-        # del head.rightchild  # deallocates memory from heap
-        # gc.collect()  # frees the memory
+        head.parent.value = 0
+        left_value = head.leftchild.value
+        right_value = head.rightchild.value
+        head.leftchild.parent = None  # avoids dangling pointer
+        head.rightchild.parent = None  # avoids dangling pointer
+        del head.leftchild  # deallocates memory from heap
+        del head.rightchild  # deallocates memory from heap
+        gc.collect()  # frees the memory
 
+        head = head.parent.parent
+        added_le = False
+        added_re = False
         return self.root
 
+    def main() -> None:
+        # nodes with empty values are equal to -1
+        # the root node has value -2
+        root = Node(None, None, None, -2)
+        sfn = SnailFishNumber(root)
+        print(f"The value of the root value is {sfn.root.value}")
+        print(f"Height of the sfn at start is: {sfn.root.height()}")
+        # reading a snail fish number:
+        # given_list = [1, 2]
+        # given_list = [1, [1, 2]]
+        # given_list = [[0, [2, 11]], [1, 2]]
+        given_list = [[[[[9, 8], 1], 2], 3], 4]
 
-def main() -> None:
-    # nodes with empty values are equal to -1
-    # the root node has value -2
-    root = Node(None, None, None, -2)
-    sfn = SnailFishNumber(root)
-    print(f"The value of the root value is {sfn.root.value}")
-    print(f"Height of the sfn at start is: {sfn.root.height()}")
-    # reading a snail fish number:
-    # given_list = [1, 2]
-    # given_list = [1, [1, 2]]
-    # given_list = [[0, [2, 11]], [1, 2]]
-    given_list = [[[[[9, 8], 1], 2], 3], 4]
     sfn.read_snailfish_number(sfn.root, given_list)
     print(f"Value of the root value is {sfn.root.value}")
     print(f"Height of the sfn after read is: {sfn.root.height()}")
