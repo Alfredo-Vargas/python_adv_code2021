@@ -1,4 +1,5 @@
 import sys
+import re
 
 # infile = sys.argv[1] if len(sys.argv) > 1 else "18.in"
 input0 = "[[3,4],5]"
@@ -35,7 +36,45 @@ def is_splitable(sfn: str) -> tuple:
 
 
 def update_left(lefty: str, value: int) -> str:
-    new_lefty = ""
+    reversed_lefty = lefty[::-1]
+    match = re.search(r"\d", reversed_lefty)
+    if match:
+        pointer = match.start()
+        left = reversed_lefty[:pointer]
+        if reversed_lefty[pointer + 1].isnumeric():
+            digit = int(reversed_lefty[pointer + 1] + reversed_lefty[pointer])
+            new_value = digit + value
+            right_index = pointer + 2
+            right = reversed_lefty[right_index:]
+            new_lefty = right[::-1] + str(new_value) + left[::-1]
+            return new_lefty
+        else:
+            new_value = int(reversed_lefty[pointer]) + value
+            right_index = pointer + 1
+            right = reversed_lefty[right_index:]
+            new_lefty = right[::-1] + str(new_value) + left[::-1]
+            return new_lefty
+    return lefty
+
+
+def update_right(righty: str, value: int) -> str:
+    match = re.search(r"\d", righty)
+    if match:
+        pointer = match.start()
+        left = righty[:pointer]
+        if righty[pointer + 1].isnumeric():
+            new_value = int(righty[pointer] + righty[pointer + 1]) + value
+            right_index = pointer + 2
+            right = righty[right_index:]
+            new_righty = left + str(new_value) + right
+            return new_righty
+        else:
+            new_value = int(righty[pointer]) + value
+            right_index = pointer + 1
+            right = righty[right_index:]
+            new_righty = left + str(new_value) + right
+            return new_righty
+    return righty
 
 
 def explode(sfn: str, index0: int) -> str:
@@ -46,6 +85,7 @@ def explode(sfn: str, index0: int) -> str:
     middle_part = sfn[index0:index1]
     values = [int(value) for value in middle_part[1:-1].split(",")]
     print(left_part)
+    update_left(left_part, values[0])
     print(left_part[::-1])
     print(values)
     print(right_part)
@@ -67,6 +107,7 @@ explode(input1, 4)
 print("")
 explode(input3, 10)
 # parsing
+
 
 # index = input.find("]")
 # slice = input[: index + 1]
