@@ -1,15 +1,6 @@
 import sys
 import re
 
-# infile = sys.argv[1] if len(sys.argv) > 1 else "18.in"
-input0 = "[[3,4],5]"
-input1 = "[[[[[9,8],1],2],3],4]"
-input2 = "[[[[0,9],2],3],4]"
-input3 = "[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]"
-
-input4 = "[[[[0,7],4],[15,[0,13]]],[1,1]]"
-input5 = "[[[[0,7],4],[[7,8],[0,13]]],[1,1]]"
-
 
 def is_explodable(sfn: str) -> tuple:
     pe = 0
@@ -33,6 +24,10 @@ def is_splitable(sfn: str) -> tuple:
             return (True, ps)
         ps += 1
     return (False, ps)
+
+
+def is_reducible(sfn: str) -> bool:
+    return is_explodable(sfn)[0] or is_splitable(sfn)[0]
 
 
 def update_left(lefty: str, value: int) -> str:
@@ -84,32 +79,50 @@ def explode(sfn: str, index0: int) -> str:
     right_part = sfn[index1:]
     middle_part = sfn[index0:index1]
     values = [int(value) for value in middle_part[1:-1].split(",")]
-    print(left_part)
-    update_left(left_part, values[0])
-    print(left_part[::-1])
-    print(values)
-    print(right_part)
+    new_left = update_left(left_part, values[0])
+    new_right = update_right(right_part, values[1])
+    exploded_sfn = new_left + "0" + new_right
+    return exploded_sfn
+
+
+def split(sfn: str, index0: int) -> str:
+    left_part = sfn[:index0]
+    index1 = index0 + 2
+    right_part = sfn[index1:]
+    number = int(sfn[index0] + sfn[index0 + 1])
+    value = int(number / 2)
+    if number % 2 == 0:
+        middle_part = "[" + str(value) + "," + str(value) + "]"
+    else:
+        middle_part = "[" + str(value) + "," + str(value + 1) + "]"
+    return left_part + middle_part + right_part
+
+
+def reduce(sfn: str) -> str:
+    while is_explodable(sfn)[0]:
+        sfn = explode(sfn, is_explodable(sfn)[1])
+    if is_splitable(sfn)[0]:
+        sfn = split(sfn, is_splitable(sfn)[1])
     return sfn
 
 
-print("Testing explodability")
-print(is_explodable(input0))
-print(is_explodable(input1))
-print(is_explodable(input2))
-print(is_explodable(input3))
-print("")
-print("Testing splitability")
-print(is_splitable(input4))
-print(is_splitable(input5))
-
-print("")
-explode(input1, 4)
-print("")
-explode(input3, 10)
-# parsing
+def sum(sfn_a: str, sfn_b: str) -> str:
+    return "[" + sfn_a + "," + sfn_b + "]"
 
 
-# index = input.find("]")
-# slice = input[: index + 1]
-# print(index)
-# print(slice)
+def main() -> None:
+    file_loc = sys.argv[1] if len(sys.argv) > 1 else "Missing data for day 18"
+    sfn_list = list()
+    for line in open(file_loc):
+        sfn_list.append(line.strip())
+
+    sfn_a = sfn_list[0]
+    for i in range(1, len(sfn_list)):
+        sfn_a = sum(sfn_a, sfn_list[i])
+        while is_reducible(sfn_a):
+            sfn_a = reduce(sfn_a)
+    print(sfn_a)
+
+
+if __name__ == "__main__":
+    main()

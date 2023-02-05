@@ -73,3 +73,53 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+input0 = "[[3,4],5]"
+input1 = "[[[[[9,8],1],2],3],4]"
+input2 = "[[[[0,9],2],3],4]"
+input3 = "[[3,[2,[1,[7,3]]]],[6,[5,[4,[3,2]]]]]"
+
+input4 = "[[[[0,7],4],[15,[0,13]]],[1,1]]"
+input5 = "[[[[0,7],4],[[7,8],[0,13]]],[1,1]]"
+
+inputx = "[[[[0,7],4],[7,[[8,4],9]]],[1,1]]"
+inputy = "[[[[0,7],4],[15,[0,13]]],[1,1]]"
+inputz = "[[[[0,7],4],[[7,8],[0,13]]],[1,1]]"
+
+# print(f"The left updated part : {update_left(left_part, values[0])}")
+# print(f"The right updated part : {update_right(right_part, values[1])}")
+# print(values)
+# print(left_part)
+# print(right_part)
+
+# print("Testing explodability")
+# print(is_explodable(input0))
+# print(is_explodable(input1))
+# print(is_explodable(input2))
+# print(is_explodable(input3))
+# print(is_explodable(inputx))
+# print("")
+# print("Testing splitability")
+# print(is_splitable(input4))
+# print(is_splitable(input5))
+# print(is_splitable(inputy))
+# print(is_splitable(inputz))
+
+# print("")
+# print(f"{explode(input1, 4)}")
+# print("")
+# print(f"{explode(input3, 10)}")
+# print("")
+# print(f"{explode(inputx, 16)}")
+# print("")
+# print("")
+# print(f"{split(inputy, 13)}")
+# print("")
+# print(f"{split(inputz, 22)}")
+# parsing
+
+
+# index = input.find("]")
+# slice = input[: index + 1]
+# print(index)
+# print(slice)
