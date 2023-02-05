@@ -25,13 +25,13 @@ with open("./data/day1.txt", "r") as file:
     # to start from the fourth element
     for i in range(3, len(raw_buffer), 1):
 
-        prev_sum = int(raw_buffer[i - 3]) + \
-            int(raw_buffer[i - 2]) + \
-            int(raw_buffer[i - 1])
+        prev_sum = (
+            int(raw_buffer[i - 3]) + int(raw_buffer[i - 2]) + int(raw_buffer[i - 1])
+        )
 
-        current_sum = int(raw_buffer[i - 2]) + \
-            int(raw_buffer[i - 1]) + \
-            int(raw_buffer[i])
+        current_sum = (
+            int(raw_buffer[i - 2]) + int(raw_buffer[i - 1]) + int(raw_buffer[i])
+        )
 
         if current_sum > prev_sum:
             counter_by_sliding_window += 1

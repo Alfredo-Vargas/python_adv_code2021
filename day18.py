@@ -123,14 +123,11 @@ def magnitude(sfn: str) -> int:
         back_counter = result[indexr::-1].find("[")
         indexl = indexr - back_counter
         left_part = result[:indexl]
-        right_part = result[indexr + 1 :]
-        middle_part = result[indexl : indexr + 1]
+        iright = indexr + 1
+        right_part = result[iright:]
+        middle_part = result[indexl:iright]
         pair_mag = pair_magnitude(middle_part)
-        # print(f"The middle part is {middle_part}")
-        # values = [int(value) for value in middle_part[1:-1].split(",")]
-        # mag = 3 * values[0] + 2 * values[1]
         result = left_part + pair_mag + right_part
-        print(result, len(result))
     return int(result)
 
 
@@ -140,15 +137,38 @@ def main() -> None:
     for line in open(file_loc):
         sfn_list.append(line.strip())
 
+    # The Solution for part 1
     sfn_a = sfn_list[0]
     for i in range(1, len(sfn_list)):
         sfn_a = sum(sfn_a, sfn_list[i])
         while is_reducible(sfn_a):
             sfn_a = reduce(sfn_a)
-    print(sfn_a)
-    # The Solution for part 1
+    print("")
+    print(80 * "=")
+    print("Part 1")
+    print(80 * "=")
     print(f"The fish number is {sfn_a}")
     print(f"Its magnitude is {magnitude(sfn_a)}")
+    print("")
+    largest_magnitude = 0
+    # The Solution for part 2
+    print(80 * "=")
+    print("Part 2")
+    print(80 * "=")
+    for i in range(len(sfn_list)):
+      for j in range(len(sfn_list)):
+          if (i != j):
+            left_sum = sum(sfn_list[i], sfn_list[j])
+            while (is_reducible(left_sum)):
+                left_sum = reduce(left_sum)
+            right_sum = sum(sfn_list[j], sfn_list[i])
+            while (is_reducible(right_sum)):
+                right_sum = reduce(right_sum)
+            if magnitude(left_sum) > largest_magnitude:
+                largest_magnitude = magnitude(left_sum)
+            if magnitude(right_sum) > largest_magnitude:
+                largest_magnitude = magnitude(right_sum)
+    print(f"The largest magnitude given the non-commutative sum is {largest_magnitude}")
 
 
 if __name__ == "__main__":
