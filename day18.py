@@ -117,18 +117,17 @@ def pair_magnitude(mid_part: str) -> str:
 
 
 def magnitude(sfn: str) -> int:
-    result = sfn
-    while "," in result:
-        indexr = result.find("]")
-        back_counter = result[indexr::-1].find("[")
+    while "," in sfn:
+        indexr = sfn.find("]")
+        back_counter = sfn[indexr::-1].find("[")
         indexl = indexr - back_counter
-        left_part = result[:indexl]
+        left_part = sfn[:indexl]
         iright = indexr + 1
-        right_part = result[iright:]
-        middle_part = result[indexl:iright]
+        right_part = sfn[iright:]
+        middle_part = sfn[indexl:iright]
         pair_mag = pair_magnitude(middle_part)
-        result = left_part + pair_mag + right_part
-    return int(result)
+        sfn = left_part + pair_mag + right_part
+    return int(sfn)
 
 
 def main() -> None:
@@ -150,25 +149,28 @@ def main() -> None:
     print(f"The fish number is {sfn_a}")
     print(f"Its magnitude is {magnitude(sfn_a)}")
     print("")
-    largest_magnitude = 0
+
     # The Solution for part 2
+    largest_magnitude = 0
     print(80 * "=")
     print("Part 2")
     print(80 * "=")
     for i in range(len(sfn_list)):
-      for j in range(len(sfn_list)):
-          if (i != j):
-            left_sum = sum(sfn_list[i], sfn_list[j])
-            while (is_reducible(left_sum)):
-                left_sum = reduce(left_sum)
-            right_sum = sum(sfn_list[j], sfn_list[i])
-            while (is_reducible(right_sum)):
-                right_sum = reduce(right_sum)
-            if magnitude(left_sum) > largest_magnitude:
-                largest_magnitude = magnitude(left_sum)
-            if magnitude(right_sum) > largest_magnitude:
-                largest_magnitude = magnitude(right_sum)
+        for j in range(len(sfn_list)):
+            if i != j:
+                left_sum = sum(sfn_list[i], sfn_list[j])
+                while is_reducible(left_sum):
+                    left_sum = reduce(left_sum)
+                right_sum = sum(sfn_list[j], sfn_list[i])
+                while is_reducible(right_sum):
+                    right_sum = reduce(right_sum)
+                if magnitude(left_sum) > largest_magnitude:
+                    largest_magnitude = magnitude(left_sum)
+                if magnitude(right_sum) > largest_magnitude:
+                    largest_magnitude = magnitude(right_sum)
     print(f"The largest magnitude given the non-commutative sum is {largest_magnitude}")
+
+
 
 
 if __name__ == "__main__":

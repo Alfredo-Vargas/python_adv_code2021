@@ -28,6 +28,8 @@ with open("./data/day1.txt", "r") as file:
         prev_sum = (
             int(raw_buffer[i - 3]) + int(raw_buffer[i - 2]) + int(raw_buffer[i - 1])
         )
+        if prev_sum == 2:
+            print("2")
 
         current_sum = (
             int(raw_buffer[i - 2]) + int(raw_buffer[i - 1]) + int(raw_buffer[i])
