@@ -1,5 +1,101 @@
 import sys
 import numpy as np
+import os
+
+
+def get_beacons_diff(scanner_a: np.ndarray, scanner_b: np.ndarray) -> int:
+    point_diff = list()
+    for beacon_a in scanner_a:
+        for beacon_b in scanner_b:
+            point_diff.append(tuple(beacon_a - beacon_b))
+    print(set(point_diff))
+    return len(scanner_a) * len(scanner_b) - len(set(point_diff))
+
+
+def get_beacon_relative_distances(scanner: np.ndarray) -> list:
+    distances_list = list()
+    for i in range(len(scanner)):
+        for j in range(1, len(scanner)):
+            distances_list.append(np.linalg.norm(scanner[i] - scanner[j]))
+    return distances_list
+
+
+def read_scanners() -> list:
+    file_loc = "./data/test.txt"
+
+    # handle edge case
+    with open(file_loc, "a+b") as f:
+        try:
+            f.seek(-2, os.SEEK_END)
+            if f.read(1) != b"\n":
+                print(
+                    "No empty line at the end of file, adding an empty line to input file."
+                )
+                f.write(b"\n")
+            # else:
+            #     print("empty line found, nothing to do")
+            #     f.seek(-2, os.SEEK_CUR)
+        except:
+            f.seek(0)
+        f.seek(0, os.SEEK_SET)
+
+    # read input data
+    scanners_list = list()
+    scanner = list()
+    for line in open(file_loc):
+        # print(line.strip())
+        if "scanner" in line:
+            pass
+        elif line == "\n":
+            scanners_list.append(np.array(scanner))
+            scanner.clear()
+        else:
+            raw_coords = list(line.strip().split(","))
+            beacon_coords = [int(coord) for coord in raw_coords]
+            scanner.append(np.asarray(beacon_coords))
+    return scanners_list
+
+
+def main() -> None:
+    scanner_list = read_scanners()
+
+    # for i in range(len(scanner_list)):
+    #     for j in range(i+1, len(scanner_list)):
+    #         print(i,j)
+    #         diff_points = get_beacons_diff(scanner_list[i], scanner_list[j])
+    #         print(diff_points)
+
+    print(f"Beacons diff when there are 11 matches: \n{scanner_list[1] - scanner_list[3]}")
+    print(get_beacons_diff(scanner_list[1], scanner_list[3]))
+    # for beaca in scanner_list[1]:
+    #     for beacb in scanner_list[2]:
+    #         print(beaca - beacb)
+    # print(scanner_list[1] - scanner_list[2])
+
+    # for scanner in scanner_list:
+    #     distances_list.append(get_beacon_relative_distances(scanner))
+
+    # for scanner in scanner_list:
+
+    # for scanner in scanner_list:
+    #     print(type(scanner), scanner.shape, type(scanner[0]), scanner[0].shape)
+    # print(len(scanner_list))
+    # scanners_list.append(np.array(scanner))
+    # swapped = scanners_list[0].copy()
+    # inverted = scanners_list[0].copy()
+    # swapped[:, [0, 2]] = swapped[:, [2, 0]]
+    # inverted[:, [0]] = -inverted[:, [0]]
+    # print(scanners_list[0])
+    # print(swapped)
+    # print(inverted)
+    # print(inverted.tolist())
+    # orientations = get_orientations(scanners_list[0])
+    # print(orientations)
+    # print(len(orientations))
+    # print(len(scanners_list))
+    # for scanner in scanners_list:
+    #     print(type(scanner), scanner.shape, type(scanner[0]), scanner[0].shape)
+
 
 # def get_rotations(scn: np.ndarray) -> list:
 #     rotations = list()
@@ -59,50 +155,6 @@ import numpy as np
 #         for inversion in inversions:
 #             orientations.append(inversion)
 #     return orientations
-
-def read_scanners() -> None:
-    # file_loc = sys.argv[1] if len(sys.argv) > 1 else "Missing data for day 19"
-    file_loc = "./data/test.txt"
-    # scanners_list = list()
-    # scanner = list()
-    s = open(file_loc).tell()
-    print(s)
-
-
-def main() -> None:
-    read_scanners()
-    # file_loc = sys.argv[1] if len(sys.argv) > 1 else "Missing data for day 19"
-    # scanners_list = list()
-    # scanner = list()
-
-    # for line in open(file_loc):
-    #     if "scanner" in line:
-    #         pass
-    #     elif line == "\n":
-    #         scanners_list.append(np.array(scanner))
-    #         scanner.clear()
-    #     elif line == "EOF":
-    #         break
-    #     else:
-    #         raw_coords = list(line.strip().split(","))
-    #         beacon_coords = [int(coord) for coord in raw_coords]
-    #         scanner.append(np.asarray(beacon_coords))
-    # scanners_list.append(np.array(scanner))
-    # swapped = scanners_list[0].copy()
-    # inverted = scanners_list[0].copy()
-    # swapped[:, [0, 2]] = swapped[:, [2, 0]]
-    # inverted[:, [0]] = -inverted[:, [0]]
-    # print(scanners_list[0])
-    # print(swapped)
-    # print(inverted)
-    # print(inverted.tolist())
-    # orientations = get_orientations(scanners_list[0])
-    # print(orientations)
-    # print(len(orientations))
-    # print(len(scanners_list))
-    # for scanner in scanners_list:
-    #     print(type(scanner), scanner.shape, type(scanner[0]), scanner[0].shape)
-
 
 if __name__ == "__main__":
     main()
