@@ -1,23 +1,68 @@
-import sys
 import numpy as np
 import os
 
 
 def get_beacons_diff(scanner_a: np.ndarray, scanner_b: np.ndarray) -> int:
     point_diff = list()
-    for beacon_a in scanner_a:
-        for beacon_b in scanner_b:
-            point_diff.append(tuple(beacon_a - beacon_b))
-    print(set(point_diff))
-    return len(scanner_a) * len(scanner_b) - len(set(point_diff))
+    overlapping_points = list()
+    pos_beacon = list()
+
+    # for beacon_a in scanner_a:
+    #     for beacon_b in scanner_b:
+    #         point_diff.append(tuple(beacon_a - beacon_b))
+    # return len(scanner_a) * len(scanner_b) - len(set(point_diff))
+
+    for i in range(len(scanner_a)):
+        for j in range(len(scanner_b)):
+            point_diff.append(tuple(scanner_a[i] - scanner_b[j]))
+            pos_beacon.append((i, j))
+
+    uniques, counts = np.unique(point_diff, return_counts=True)
+
+    are_overlapped_scanners = False
+
+    while not are_overlapped_scanners:
+        for i in range(len(point_diff)):
+            if counts[i] >= 12:
+                pos_beacon.append((i, j))
+
+    return point_diff
 
 
-def get_beacon_relative_distances(scanner: np.ndarray) -> list:
-    distances_list = list()
-    for i in range(len(scanner)):
-        for j in range(1, len(scanner)):
-            distances_list.append(np.linalg.norm(scanner[i] - scanner[j]))
-    return distances_list
+
+def get_axis_representations(scanner: np.ndarray) -> list:
+    sar = list()  # scanner axis representation
+    sar.append(scanner[:, [0, 1, 2]])
+    sar.append(scanner[:, [0, 2, 1]])
+    sar.append(scanner[:, [1, 2, 0]])
+    sar.append(scanner[:, [1, 0, 2]])
+    sar.append(scanner[:, [2, 0, 1]])
+    sar.append(scanner[:, [2, 1, 0]])
+    return sar
+
+
+def get_direction_representations(scanner: np.ndarray) -> list:
+    sdr = list()  # scanner direction representation
+    # single axis inversion
+    for i in range(3):
+        temp = scanner.copy()
+        temp[:, i] = temp[:, i] * -1
+        sdr.append(temp)
+    # double axis inversion
+    for i in range(3):
+        for j in range(i + 1, 3):
+            temp = scanner.copy()
+            temp[:, [i, j]] = temp[:, [i, j]] * -1
+            sdr.append(temp)
+    # no inversion and all axis inversion
+    sdr.append(scanner)
+    sdr.append(scanner * -1)
+    return sdr
+
+
+# def get_rotation_representations(scanner: np.ndarray) -> list:
+#     srr = list()  # scanner rotation representation
+#     return srr
 
 
 def read_scanners() -> list:
@@ -58,15 +103,34 @@ def read_scanners() -> list:
 
 def main() -> None:
     scanner_list = read_scanners()
+    # print(len(get_axis_representations(scanner_list[0])))
+    # print(len(get_direction_representations(scanner_list[0])))
 
-    # for i in range(len(scanner_list)):
-    #     for j in range(i+1, len(scanner_list)):
-    #         print(i,j)
-    #         diff_points = get_beacons_diff(scanner_list[i], scanner_list[j])
-    #         print(diff_points)
+    diff_points = int()
+    for i in range(len(scanner_list)):
+        diff_points = 0
+        for j in range(i + 1, len(scanner_list)):
+            if diff_points >= 12:
+                break
+            # print(i,j)
+            given_scanner = scanner_list[i]
+            axis_representations = get_axis_representations(given_scanner)
+            for ar in axis_representations:
+                if diff_points >= 12:
+                    break
+                direction_representations = get_direction_representations(ar)
+                for dr in direction_representations:
+                    diff_points = get_beacons_diff(dr, scanner_list[j])
+                    if diff_points >= 12:
+                        print("------------------------------------------------------------")
+                        print(f"Found overlapped scanners {i} and {j}, with {diff_points} common beacons.")
+                        # print(f"Scanners {i} and {j} have {diff_points} overlapping points")
+                        break
 
-    print(f"Beacons diff when there are 11 matches: \n{scanner_list[1] - scanner_list[3]}")
-    print(get_beacons_diff(scanner_list[1], scanner_list[3]))
+    print("------------------------------------------------------------")
+    # print(get_beacons_diff(scanner_list[1], scanner_list[3]))
+
+    # print(f"Beacons diff when there are 11 matches: \n{scanner_list[1] - scanner_list[3]}")
     # for beaca in scanner_list[1]:
     #     for beacb in scanner_list[2]:
     #         print(beaca - beacb)
@@ -155,6 +219,13 @@ def main() -> None:
 #         for inversion in inversions:
 #             orientations.append(inversion)
 #     return orientations
+
+# def get_beacon_relative_distances(scanner: np.ndarray) -> list:
+#     distances_list = list()
+#     for i in range(len(scanner)):
+#         for j in range(1, len(scanner)):
+#             distances_list.append(np.linalg.norm(scanner[i] - scanner[j]))
+#     return distances_list
 
 if __name__ == "__main__":
     main()
