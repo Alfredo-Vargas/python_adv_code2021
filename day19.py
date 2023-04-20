@@ -2,10 +2,10 @@ import numpy as np
 import os
 
 
-def get_beacons_diff(scanner_a: np.ndarray, scanner_b: np.ndarray) -> tuple:
+def get_beacons_diff(scanner_a: np.ndarray, scanner_b: np.ndarray) -> bool:
     point_diff = list()
     overlapping_points = list()
-    pos_beacon = list()
+    # pos_beacon = list()
 
     # scanner_a & scanner_b do not always have the same dimension so I cannot simply take the vector difference
     # instead:
@@ -13,60 +13,67 @@ def get_beacons_diff(scanner_a: np.ndarray, scanner_b: np.ndarray) -> tuple:
     for i in range(len(scanner_a)):
         for j in range(len(scanner_b)):
             point_diff.append(tuple(scanner_a[i] - scanner_b[j]))
-            pos_beacon.append((i, j))
+            # pos_beacon.append((i, j))
+
+    uniques, indices, counts = np.unique(
+        point_diff, return_index=True, return_counts=True, axis=0
+    )
+
+    if max(counts) >= 12:
+        return True
+    else:
+        return False
+
+def get_two_dimensional_orientations(scanner: np.ndarray) -> list:
+    plane_orientations = list()
+
+    first_quadrant = scanner[:, [0, 1, 2]].copy()
+    second_quadrant = scanner.copy()[:, [0, 2, 1]]
+    second_quadrant[:, 2] = second_quadrant[:, 2] * -1
+    third_quadrant = scanner.copy()
+    third_quadrant[:, [1, 2]] = third_quadrant[:, [1, 2]] * -1
+    fourth_quadrant = scanner.copy()[:, [0, 2, 1]]
+    fourth_quadrant[:, 1] = fourth_quadrant[:, 1] * -1
+
+    plane_orientations.append(first_quadrant)
+    plane_orientations.append(second_quadrant)
+    plane_orientations.append(third_quadrant)
+    plane_orientations.append(fourth_quadrant)
+
+    return plane_orientations
     
-    uniques, indices, counts = np.unique(point_diff, return_index=True, return_counts=True, axis=0)
 
-    for i in range(len(counts)):
-        if counts[i] >= 12:
-            overlapping_points.append(pos_beacon[indices[i]])
+def get_axis_of_rotations(scanner: np.ndarray) -> list:
+    axis_of_rotations = list()
 
-    n_overlapped_points = len(scanner_a) * len(scanner_b) - len(uniques) + 1
+    rot_axis_positive_x = scanner.copy()
+    rot_axis_negative_x = scanner.copy()
+    rot_axis_negative_x[:, 0] = rot_axis_negative_x[:, 0] * -1
 
-    # are_overlapped_scanners = False
+    rot_axis_positive_y = scanner.copy()[:, [1, 0, 2]]
+    rot_axis_negative_y = scanner.copy()[:, [1, 0, 2]]
+    rot_axis_negative_y[:, 0] = rot_axis_negative_y[:, 0] * -1
 
-    # while not are_overlapped_scanners:
-    #     for i in range(len(point_diff)):
-    #         if counts[i] >= 12:
-    #             pos_beacon.append((i, j))
+    rot_axis_positive_z = scanner.copy()[:, [2, 0, 1]]
+    rot_axis_negative_z = scanner.copy()[:, [1, 0, 1]]
+    rot_axis_negative_z[:, 0] = rot_axis_negative_z[:, 0] * -1
 
-    return (n_overlapped_points, overlapping_points)
+    axis_of_rotations.append(rot_axis_positive_x)
+    axis_of_rotations.append(rot_axis_negative_x)
+    axis_of_rotations.append(rot_axis_positive_y)
+    axis_of_rotations.append(rot_axis_negative_y)
+    axis_of_rotations.append(rot_axis_positive_z)
+    axis_of_rotations.append(rot_axis_negative_z)
 
+    return axis_of_rotations
 
+def get_rotation_orientations(scanner: np.ndarray) -> list:
+    rot_orientations = list()
 
-def get_axis_representations(scanner: np.ndarray) -> list:
-    sar = list()  # scanner axis representation
-    sar.append(scanner[:, [0, 1, 2]])
-    sar.append(scanner[:, [0, 2, 1]])
-    sar.append(scanner[:, [1, 2, 0]])
-    sar.append(scanner[:, [1, 0, 2]])
-    sar.append(scanner[:, [2, 0, 1]])
-    sar.append(scanner[:, [2, 1, 0]])
-    return sar
-
-
-def get_direction_representations(scanner: np.ndarray) -> list:
-    sdr = list()  # scanner direction representation
-    # single axis inversion
-    for i in range(3):
-        temp = scanner.copy()
-        temp[:, i] = temp[:, i] * -1
-        sdr.append(temp)
-    # double axis inversion
-    for i in range(3):
-        for j in range(i + 1, 3):
-            temp = scanner.copy()
-            temp[:, [i, j]] = temp[:, [i, j]] * -1
-            sdr.append(temp)
-    # no inversion and all axis inversion
-    sdr.append(scanner)
-    sdr.append(scanner * -1)
-    return sdr
-
-
-# def get_rotation_representations(scanner: np.ndarray) -> list:
-#     srr = list()  # scanner rotation representation
-#     return srr
+    for given_axis in get_axis_of_rotations(scanner):
+        for orientation in get_two_dimensional_orientations(given_axis):
+            rot_orientations.append(orientation)
+    return rot_orientations
 
 
 def read_scanners() -> list:
@@ -115,8 +122,6 @@ def main() -> None:
     # print(scanner_list[1] - scanner_list[3])
     # print(get_beacons_diff(scanner_list[1], scanner_list[3]))
 
-    
-
     # diff_points = tuple()
     # for i in range(len(scanner_list)):
     #     diff_points = 0
@@ -137,36 +142,3 @@ def main() -> None:
     #                     print(f"Found overlapped scanners {i} and {j}, with {diff_points} common beacons.")
     #                     # print(f"Scanners {i} and {j} have {diff_points} overlapping points")
     #                     break
-
-    print("------------------------------------------------------------")
-    # print(get_beacons_diff(scanner_list[1], scanner_list[3]))
-
-    # print(f"Beacons diff when there are 11 matches: \n{scanner_list[1] - scanner_list[3]}")
-    # for beaca in scanner_list[1]:
-    #     for beacb in scanner_list[2]:
-    #         print(beaca - beacb)
-    # print(scanner_list[1] - scanner_list[2])
-
-    # for scanner in scanner_list:
-    #     distances_list.append(get_beacon_relative_distances(scanner))
-
-    # for scanner in scanner_list:
-
-    # for scanner in scanner_list:
-    #     print(type(scanner), scanner.shape, type(scanner[0]), scanner[0].shape)
-    # print(len(scanner_list))
-    # scanners_list.append(np.array(scanner))
-    # swapped = scanners_list[0].copy()
-    # inverted = scanners_list[0].copy()
-    # swapped[:, [0, 2]] = swapped[:, [2, 0]]
-    # inverted[:, [0]] = -inverted[:, [0]]
-    # print(scanners_list[0])
-    # print(swapped)
-    # print(inverted)
-    # print(inverted.tolist())
-    # orientations = get_orientations(scanners_list[0])
-    # print(orientations)
-    # print(len(orientations))
-    # print(len(scanners_list))
-    # for scanner in scanners_list:
-    #     print(type(scanner), scanner.shape, type(scanner[0]), scanner[0].shape)
