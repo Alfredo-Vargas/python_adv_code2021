@@ -24,35 +24,66 @@ def get_beacons_diff(scanner_a: np.ndarray, scanner_b: np.ndarray) -> tuple:
         return (False, max(counts), uniques[0])
 
 
-def rotate90_scanner(scanner: np.ndarray, n: int) -> np.ndarray:
-    if n == 0:
-        return scanner
-    elif n == 1:
-        scanner[:, 2] = scanner[:, 2] * -1
-        return scanner[:, [0, 2, 1]]
-    elif n == 2:
-        scanner[:, [1, 2]] = scanner[:, [1, 2]] * -1
-        return scanner
-    elif n == 3:
-        scanner[:, 1] = scanner[:, 1] * -1
-        return scanner[:, [0, 2, 1]]
-    else:
-        print("Invalid number of rotatiosn. No rotation performed")
-        return scanner
+def get_rotations(scanner: np.ndarray) -> list:
+    rotations = list()
 
+    identity = np.identity(3)
+
+    mpx = np.array(
+        [[1, 0, 0], [0, 0, -1], [0, 1, 0]]
+    )  # 90 rotation matrix along positive x
+
+    mnx = np.array(
+        [[-1, 0, 0], [0, 0, -1], [0, 1, 0]]
+    )  # 90 rotation matrix along negative x
+
+    postive_xrotations = [identity, mpx, np.matmul(mpx, mpx), np.matmul(mpx, np.matmul(mpx, mpx))]
+    negative_xrotations = [identity, mnx, np.matmul(mnx, mnx), np.matmul(mnx, np.matmul(mnx, mnx))]
+
+    rotations.append(scanner)
+    rotated_scanner = np.array(scanner.shape)
+    for i in range(len(scanner)):
+        rotated_scanner[i] = np.matmul(mpx, scanner[i])
+    rotations.append(rotated_scanner)
+    rotated_scanner = np.array(scanner.shape)
+    for i in range(len(scanner)):
+        rotated_scanner[i] = np.matmul(mpx, np.matmul(mpx, scanner[i]))
+    rotations.append(rotated_scanner)
+    rotated_scanner = np.array(scanner.shape)
+    for i in range(len(scanner)):
+        rotated_scanner[i] = np.matmul(mpx, np.matmul(mpx, np.matmul(mpx, scanner[i])))
+    rotations.append(rotated_scanner)
+
+    scanner_inverted = scanner.copy()
+    scanner_inverted[:0] = scanner_inverted[:0] * -1
+    rotations.append(scanner_inverted)
+    rotated_scanner = np.array(scanner.shape)
+    for i in range(len(scanner)):
+        rotated_scanner[i] = np.matmul(mpx, scanner[i])
+    rotations.append(rotated_scanner)
+    rotated_scanner = np.array(scanner.shape)
+    for i in range(len(scanner)):
+        rotated_scanner[i] = np.matmul(mpx, np.matmul(mpx, scanner[i]))
+    rotations.append(rotated_scanner)
+    rotated_scanner = np.array(scanner.shape)
+    for i in range(len(scanner)):
+        rotated_scanner[i] = np.matmul(mpx, np.matmul(mpx, np.matmul(mpx, scanner[i])))
+    rotations.append(rotated_scanner)
+
+    return rotations
 
 
 def get_orientations(scanner: np.ndarray) -> list:
     orientations = list()
 
     # rotations along the positive x - axis
-    rotxq1 = scanner.copy()
-    rotxq2 = scanner.copy()
+    rotxq1 = scanner.copy()[:, [0, 1, 2]]
+    rotxq2 = rotxq1.copy()
     rotxq2 = rotxq2[:, [0, 2, 1]]  # swap axis, y and z
     rotxq2[:, 1] = rotxq2[:, 1] * -1  # y becomes negative
-    rotxq3 = scanner.copy()
+    rotxq3 = rotxq1.copy()
     rotxq3[:, [1, 2]] = rotxq3[:, [1, 2]] * -1  # y and z become negative
-    rotxq4 = scanner.copy()
+    rotxq4 = rotxq1.copy()
     rotxq4 = rotxq4[:, [0, 2, 1]]  # swap axis, y and z
     rotxq4[:, 2] = rotxq4[:, 2] * -1  # z becomes negative
     orientations.append(rotxq1)
@@ -60,50 +91,52 @@ def get_orientations(scanner: np.ndarray) -> list:
     orientations.append(rotxq3)
     orientations.append(rotxq4)
     # rotations along the negative x - axis
+    rotxqn1 = rotxq1.copy()
+    rotxqn1[:, 0] = rotxqn1[:, 0] * -1
     orientations.append(rotxq1[:, [0, 2, 1]])
     orientations.append(rotxq2[:, [0, 2, 1]])
     orientations.append(rotxq3[:, [0, 2, 1]])
     orientations.append(rotxq4[:, [0, 2, 1]])
 
     # rotations along the positive y - axis
-    rotyq1 = scanner.copy()
-    rotyq2 = scanner.copy()
-    rotyq2 = rotyq2[:, [2, 1, 0]]  # swap ayis, x and z
-    rotyq2[:, 0] = rotyq2[:, 0] * -1  # x becomes negative
-    rotyq3 = scanner.copy()
-    rotyq3[:, [0, 2]] = rotyq3[:, [0, 2]] * -1  # x and z become negative
-    rotyq4 = scanner.copy()
-    rotyq4 = rotyq4[:, [2, 1, 0]]  # swap ayis, y and z
-    rotyq4[:, 2] = rotyq4[:, 2] * -1  # z becomes negative
+    rotyq1 = scanner.copy()[:, [1, 0, 2]]
+    rotyq2 = rotyq1.copy()
+    rotyq2 = rotyq2[:, [0, 2, 1]]
+    rotyq2[:, 1] = rotyq2[:, 1] * -1
+    rotyq3 = rotyq1.copy()
+    rotyq3[:, [1, 2]] = rotyq3[:, [1, 2]] * -1
+    rotyq4 = rotyq1.copy()
+    rotyq4 = rotyq4[:, [0, 2, 1]]
+    rotyq4[:, 2] = rotyq4[:, 2] * -1
     orientations.append(rotyq1)
     orientations.append(rotyq2)
     orientations.append(rotyq3)
     orientations.append(rotyq4)
     # rotations along the negative y - axis
-    orientations.append(rotyq1[:, [2, 1, 0]])
-    orientations.append(rotyq2[:, [2, 1, 0]])
-    orientations.append(rotyq3[:, [2, 1, 0]])
-    orientations.append(rotyq4[:, [2, 1, 0]])
+    orientations.append(rotyq1[:, [0, 2, 1]])
+    orientations.append(rotyq2[:, [0, 2, 1]])
+    orientations.append(rotyq3[:, [0, 2, 1]])
+    orientations.append(rotyq4[:, [0, 2, 1]])
 
     # rotations along the positive z - axis
-    rotzq1 = scanner.copy()
-    rotzq2 = scanner.copy()
-    rotzq2 = rotzq2[:, [1, 0, 2]]  # swap ayis, x and y
-    rotzq2[:, 0] = rotzq2[:, 0] * -1  # x becomes negative
-    rotzq3 = scanner.copy()
-    rotzq3[:, [0, 1]] = rotzq3[:, [0, 1]] * -1  # x and y become negative
-    rotzq4 = scanner.copy()
-    rotzq4 = rotzq4[:, [1, 0, 2]]  # swap ayis, x and y
-    rotzq4[:, 1] = rotzq4[:, 1] * -1  # y becomes negative
+    rotzq1 = scanner.copy()[:, [2, 0, 1]]
+    rotzq2 = rotzq1.copy()
+    rotzq2 = rotzq2[:, [0, 2, 1]]
+    rotzq2[:, 1] = rotzq2[:, 1] * -1
+    rotzq3 = rotzq1.copy()
+    rotzq3[:, [1, 2]] = rotzq3[:, [1, 2]] * -1
+    rotzq4 = rotzq1.copy()
+    rotzq4 = rotzq4[:, [0, 2, 1]]
+    rotzq4[:, 2] = rotzq4[:, 2] * -1
     orientations.append(rotzq1)
     orientations.append(rotzq2)
     orientations.append(rotzq3)
     orientations.append(rotzq4)
     # rotations along the negative z - axis
-    orientations.append(rotzq1[:, [1, 0, 2]])
-    orientations.append(rotzq2[:, [1, 0, 2]])
-    orientations.append(rotzq3[:, [1, 0, 2]])
-    orientations.append(rotzq4[:, [1, 0, 2]])
+    orientations.append(rotzq1[:, [0, 2, 1]])
+    orientations.append(rotzq2[:, [0, 2, 1]])
+    orientations.append(rotzq3[:, [0, 2, 1]])
+    orientations.append(rotzq4[:, [0, 2, 1]])
 
     return orientations
 
@@ -184,5 +217,4 @@ if __name__ == "__main__":
 # 523 wrong
 # 479 wrong
 # 383 wrong
-# 479 wrong
 # 491 wrong
