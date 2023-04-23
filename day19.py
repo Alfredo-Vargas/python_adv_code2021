@@ -4,15 +4,10 @@ import os
 
 def get_beacons_diff(scanner_a: np.ndarray, scanner_b: np.ndarray) -> tuple:
     point_diff = list()
-    overlapping_points = list()
-    # pos_beacon = list()
-    # scanner_a & scanner_b do not always have the same dimension so I cannot simply take the vector difference
-    # instead:
 
     for i in range(len(scanner_a)):
         for j in range(len(scanner_b)):
             point_diff.append(tuple(scanner_a[i] - scanner_b[j]))
-            # pos_beacon.append((i, j))
 
     uniques, indices, counts = np.unique(
         point_diff, return_index=True, return_counts=True, axis=0

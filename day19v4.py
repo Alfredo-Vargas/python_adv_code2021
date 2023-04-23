@@ -4,24 +4,32 @@ import os
 
 def get_beacons_diff(scanner_a: np.ndarray, scanner_b: np.ndarray) -> tuple:
     point_diff = list()
-    overlapping_points = list()
-    # pos_beacon = list()
-    # scanner_a & scanner_b do not always have the same dimension so I cannot simply take the vector difference
-    # instead:
 
     for i in range(len(scanner_a)):
         for j in range(len(scanner_b)):
             point_diff.append(tuple(scanner_a[i] - scanner_b[j]))
-            # pos_beacon.append((i, j))
 
     uniques, indices, counts = np.unique(
         point_diff, return_index=True, return_counts=True, axis=0
     )
+    # if [68,-1246,-43] in uniques:
+    #     print("yep")
 
+    magic_index = 0
     if max(counts) >= 12:
-        return (True, max(counts), uniques[0])
+        # print(f"Uniques are {uniques}")
+        # print(f"Indices are {indices}")
+        # print(f"Index")
+        # print(f"Counts are {counts}")
+        max_value = max(counts)
+        magic_index = counts.tolist().index(max_value)
+        # print(f"Index of max is: {counts.tolist().index(max_value)}")
+        # print(f"Max counts is {counts[magic_index]}")
+        # print(f"The translation vector is: {uniques[magic_index]}")
+
+        return (True, max(counts), uniques[magic_index])
     else:
-        return (False, max(counts), uniques[0])
+        return (False, max(counts), uniques[magic_index])
 
 
 def rotate90_scanner(scanner: np.ndarray, n: int) -> np.ndarray:
@@ -65,41 +73,34 @@ def rotate90_scanner(scanner: np.ndarray, n: int) -> np.ndarray:
 
     # positive y
     if n == 8:
-        oriented_scanner = oriented_scanner[:, [1, 0, 2]]
         return oriented_scanner
     elif n == 9:
-        oriented_scanner = oriented_scanner[:, [1, 0, 2]]
         oriented_scanner[:, 2] = oriented_scanner[:, 2] * -1
         return oriented_scanner[:, [0, 2, 1]]
     elif n == 10:
-        oriented_scanner = oriented_scanner[:, [1, 0, 2]]
         oriented_scanner[:, [1, 2]] = oriented_scanner[:, [1, 2]] * -1
         return oriented_scanner
     elif n == 11:
-        oriented_scanner = oriented_scanner[:, [1, 0, 2]]
         oriented_scanner[:, 1] = oriented_scanner[:, 1] * -1
         return oriented_scanner[:, [0, 2, 1]]
 
     # negative y
     elif n == 12:
-        oriented_scanner = oriented_scanner[:, [1, 0, 2]]
         oriented_scanner[:, 0] = oriented_scanner[:, 0] * -1
         return oriented_scanner
     elif n == 13:
-        oriented_scanner = oriented_scanner[:, [1, 0, 2]]
         oriented_scanner[:, 0] = oriented_scanner[:, 0] * -1
         oriented_scanner[:, 2] = oriented_scanner[:, 2] * -1
         return oriented_scanner[:, [0, 2, 1]]
     elif n == 14:
-        oriented_scanner = oriented_scanner[:, [1, 0, 2]]
         oriented_scanner[:, 0] = oriented_scanner[:, 0] * -1
         oriented_scanner[:, [1, 2]] = oriented_scanner[:, [1, 2]] * -1
         return oriented_scanner
     elif n == 15:
-        oriented_scanner = oriented_scanner[:, [1, 0, 2]]
         oriented_scanner[:, 0] = oriented_scanner[:, 0] * -1
         oriented_scanner[:, 1] = oriented_scanner[:, 1] * -1
         return oriented_scanner[:, [0, 2, 1]]
+
     # positive z
     if n == 16:
         oriented_scanner = oriented_scanner[:, [2, 1, 0]]
@@ -183,32 +184,66 @@ def main() -> None:
     for scanner in scanner_list:
         beacon_counter += len(scanner)
 
+    # for axis_selection in [(0,1,2), (0,2,1), (1,0,2),(1,2,0),(2,0,1),(2,1,0)]:
+    #     print(axis_selection)
+    #     print(scanner_list[0][:, axis_selection])
+    # for sign_selection in [1, -1]:
+    # print(scanner_list[0])
+    # for i in range(3):
+    #     temp = scanner_list[0].copy()
+    #     temp[:, i] = temp[:, i] * -1
+    #     print(temp)
+
+    # print(scanner_list[0] * -1)
+
+    def get_directions(scn: np.ndarray) -> list:
+        sign_orientations = list()
+        sign_orientations.append(scn)
+        temp = scn.copy()
+        temp[:, 0] = temp[:, 0] * -1
+        sign_orientations.append(temp)
+        temp = scn.copy()
+        temp[:, 1] = temp[:, 1] * -1
+        sign_orientations.append(temp)
+        temp = scn.copy()
+        temp[:, 2] = temp[:, 2] * -1
+        sign_orientations.append(temp)
+        temp = scn.copy()
+        temp[:, [0, 1]] = temp[:, [0, 1]] * -1
+        sign_orientations.append(temp)
+        temp = scn.copy()
+        temp[:, [0, 2]] = temp[:, [0, 2]] * -1
+        sign_orientations.append(temp)
+        temp = scn.copy()
+        temp[:, [1, 2]] = temp[:, [1, 2]] * -1
+        sign_orientations.append(temp)
+        sign_orientations.append(scn * -1)
+        return sign_orientations
+
     print(f"IDB is {beacon_counter} beacons and {len(scanner_list)} scanners.")
     for i in range(len(scanner_list)):
         for j in range(i + 1, len(scanner_list)):
-            for k in range(24):
-                overlap_result = get_beacons_diff(scanner_list[i], rotate90_scanner(scanner_list[j], k))
-                if overlap_result[0]:
-                    beacon_counter -= overlap_result[1]
-                    print(f"Scanners {i}, {j} have {overlap_result[1]} common beacons.")
-                    print(f"The difference vector is: {overlap_result[2]}\n")
-                    print("----------------------------------------")
-            # for scanner_oriented in get_orientations(scanner_list[j]):
-            #     overlap_result = get_beacons_diff(scanner_list[i], scanner_oriented)
-            #     if overlap_result[0]:
-            #         beacon_counter -= overlap_result[1]
-            #         print(
-            #             "------------------------------------------------------------"
-            #         )
-            #         print(f"Scanners {i}, {j} have {overlap_result[1]} common beacons.")
-            #         print(f"The scanner {j} has the orientation: {orientation}")
-            #         print(f"The difference vector is: {overlap_result[2]}\n")
-            #     orientation += 1
+    # for i in range(1):
+    #     for j in range(i + 1, 2):
+            for axis_selection in [(0,1,2), (0,2,1), (1,0,2),(1,2,0),(2,0,1),(2,1,0)]:
+                signed_list = get_directions(scanner_list[j][:, axis_selection])
+                for k in range(len(signed_list)):
+                # for sign_orientation in signed_list:
+                    overlap_result = get_beacons_diff(scanner_list[i], signed_list[k])
+                    if overlap_result[0]:
+                        print(f"Scanners {i}, {j} have {overlap_result[1]} common beacons.")
+                        beacon_counter -= overlap_result[1]
+                        print(f"The axis selection is {axis_selection}, and the sign index is {k}")
+                        print(f"The difference vector is: {overlap_result[2]}\n")
+    #         for k in range(24):
+    #             overlap_result = get_beacons_diff(scanner_list[i], rotate90_scanner(scanner_list[j], k))
+    #             if overlap_result[0]:
+    #                 beacon_counter -= overlap_result[1]
+    #                 print(f"Scanners {i}, {j} have {overlap_result[1]} common beacons.")
+    #                 print(f"The difference vector is: {overlap_result[2]}\n")
+    #                 print("----------------------------------------")
 
     print(f"The total number of unique beacons is: {beacon_counter}")
-
-    # for scann1_orientation in get_orientations(scanner_list[1]):
-    #     print(get_beacons_diff(scanner_list[0], scann1_orientation))
 
 
 if __name__ == "__main__":
@@ -223,3 +258,4 @@ if __name__ == "__main__":
 # 479 wrong
 # 383 wrong
 # 491 wrong
+# 311 wrong
