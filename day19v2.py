@@ -4,141 +4,22 @@ import os
 
 def get_beacons_diff(scanner_a: np.ndarray, scanner_b: np.ndarray) -> tuple:
     point_diff = list()
-    overlapping_points = list()
-    # pos_beacon = list()
-    # scanner_a & scanner_b do not always have the same dimension so I cannot simply take the vector difference
-    # instead:
 
     for i in range(len(scanner_a)):
         for j in range(len(scanner_b)):
             point_diff.append(tuple(scanner_a[i] - scanner_b[j]))
-            # pos_beacon.append((i, j))
 
-    uniques, indices, counts = np.unique(
+    uniques, _, counts = np.unique(
         point_diff, return_index=True, return_counts=True, axis=0
     )
-
+    magic_index = 0
     if max(counts) >= 12:
-        return (True, max(counts), uniques[0])
+        max_value = max(counts)
+        magic_index = counts.tolist().index(max_value)
+
+        return (True, max(counts), uniques[magic_index])
     else:
-        return (False, max(counts), uniques[0])
-
-
-def get_rotations(scanner: np.ndarray) -> list:
-    rotations = list()
-
-    identity = np.identity(3)
-
-    mpx = np.array(
-        [[1, 0, 0], [0, 0, -1], [0, 1, 0]]
-    )  # 90 rotation matrix along positive x
-
-    mnx = np.array(
-        [[-1, 0, 0], [0, 0, -1], [0, 1, 0]]
-    )  # 90 rotation matrix along negative x
-
-    postive_xrotations = [identity, mpx, np.matmul(mpx, mpx), np.matmul(mpx, np.matmul(mpx, mpx))]
-    negative_xrotations = [identity, mnx, np.matmul(mnx, mnx), np.matmul(mnx, np.matmul(mnx, mnx))]
-
-    rotations.append(scanner)
-    rotated_scanner = np.array(scanner.shape)
-    for i in range(len(scanner)):
-        rotated_scanner[i] = np.matmul(mpx, scanner[i])
-    rotations.append(rotated_scanner)
-    rotated_scanner = np.array(scanner.shape)
-    for i in range(len(scanner)):
-        rotated_scanner[i] = np.matmul(mpx, np.matmul(mpx, scanner[i]))
-    rotations.append(rotated_scanner)
-    rotated_scanner = np.array(scanner.shape)
-    for i in range(len(scanner)):
-        rotated_scanner[i] = np.matmul(mpx, np.matmul(mpx, np.matmul(mpx, scanner[i])))
-    rotations.append(rotated_scanner)
-
-    scanner_inverted = scanner.copy()
-    scanner_inverted[:0] = scanner_inverted[:0] * -1
-    rotations.append(scanner_inverted)
-    rotated_scanner = np.array(scanner.shape)
-    for i in range(len(scanner)):
-        rotated_scanner[i] = np.matmul(mpx, scanner[i])
-    rotations.append(rotated_scanner)
-    rotated_scanner = np.array(scanner.shape)
-    for i in range(len(scanner)):
-        rotated_scanner[i] = np.matmul(mpx, np.matmul(mpx, scanner[i]))
-    rotations.append(rotated_scanner)
-    rotated_scanner = np.array(scanner.shape)
-    for i in range(len(scanner)):
-        rotated_scanner[i] = np.matmul(mpx, np.matmul(mpx, np.matmul(mpx, scanner[i])))
-    rotations.append(rotated_scanner)
-
-    return rotations
-
-
-def get_orientations(scanner: np.ndarray) -> list:
-    orientations = list()
-
-    # rotations along the positive x - axis
-    rotxq1 = scanner.copy()[:, [0, 1, 2]]
-    rotxq2 = rotxq1.copy()
-    rotxq2 = rotxq2[:, [0, 2, 1]]  # swap axis, y and z
-    rotxq2[:, 1] = rotxq2[:, 1] * -1  # y becomes negative
-    rotxq3 = rotxq1.copy()
-    rotxq3[:, [1, 2]] = rotxq3[:, [1, 2]] * -1  # y and z become negative
-    rotxq4 = rotxq1.copy()
-    rotxq4 = rotxq4[:, [0, 2, 1]]  # swap axis, y and z
-    rotxq4[:, 2] = rotxq4[:, 2] * -1  # z becomes negative
-    orientations.append(rotxq1)
-    orientations.append(rotxq2)
-    orientations.append(rotxq3)
-    orientations.append(rotxq4)
-    # rotations along the negative x - axis
-    rotxqn1 = rotxq1.copy()
-    rotxqn1[:, 0] = rotxqn1[:, 0] * -1
-    orientations.append(rotxq1[:, [0, 2, 1]])
-    orientations.append(rotxq2[:, [0, 2, 1]])
-    orientations.append(rotxq3[:, [0, 2, 1]])
-    orientations.append(rotxq4[:, [0, 2, 1]])
-
-    # rotations along the positive y - axis
-    rotyq1 = scanner.copy()[:, [1, 0, 2]]
-    rotyq2 = rotyq1.copy()
-    rotyq2 = rotyq2[:, [0, 2, 1]]
-    rotyq2[:, 1] = rotyq2[:, 1] * -1
-    rotyq3 = rotyq1.copy()
-    rotyq3[:, [1, 2]] = rotyq3[:, [1, 2]] * -1
-    rotyq4 = rotyq1.copy()
-    rotyq4 = rotyq4[:, [0, 2, 1]]
-    rotyq4[:, 2] = rotyq4[:, 2] * -1
-    orientations.append(rotyq1)
-    orientations.append(rotyq2)
-    orientations.append(rotyq3)
-    orientations.append(rotyq4)
-    # rotations along the negative y - axis
-    orientations.append(rotyq1[:, [0, 2, 1]])
-    orientations.append(rotyq2[:, [0, 2, 1]])
-    orientations.append(rotyq3[:, [0, 2, 1]])
-    orientations.append(rotyq4[:, [0, 2, 1]])
-
-    # rotations along the positive z - axis
-    rotzq1 = scanner.copy()[:, [2, 0, 1]]
-    rotzq2 = rotzq1.copy()
-    rotzq2 = rotzq2[:, [0, 2, 1]]
-    rotzq2[:, 1] = rotzq2[:, 1] * -1
-    rotzq3 = rotzq1.copy()
-    rotzq3[:, [1, 2]] = rotzq3[:, [1, 2]] * -1
-    rotzq4 = rotzq1.copy()
-    rotzq4 = rotzq4[:, [0, 2, 1]]
-    rotzq4[:, 2] = rotzq4[:, 2] * -1
-    orientations.append(rotzq1)
-    orientations.append(rotzq2)
-    orientations.append(rotzq3)
-    orientations.append(rotzq4)
-    # rotations along the negative z - axis
-    orientations.append(rotzq1[:, [0, 2, 1]])
-    orientations.append(rotzq2[:, [0, 2, 1]])
-    orientations.append(rotzq3[:, [0, 2, 1]])
-    orientations.append(rotzq4[:, [0, 2, 1]])
-
-    return orientations
+        return (False, max(counts), uniques[magic_index])
 
 
 def read_scanners() -> list:
@@ -175,6 +56,113 @@ def read_scanners() -> list:
     return scanners_list
 
 
+def get_directions(scn: np.ndarray) -> list:
+    sign_orientations = list()
+    sign_orientations.append(scn)  # 0
+    temp = scn.copy()
+    temp[:, 0] = temp[:, 0] * -1  # 1
+    sign_orientations.append(temp)
+    temp = scn.copy()
+    temp[:, 1] = temp[:, 1] * -1  # 2
+    sign_orientations.append(temp)
+    temp = scn.copy()
+    temp[:, 2] = temp[:, 2] * -1  # 3
+    sign_orientations.append(temp)
+    temp = scn.copy()
+    temp[:, [0, 1]] = temp[:, [0, 1]] * -1  # 4
+    sign_orientations.append(temp)
+    temp = scn.copy()
+    temp[:, [0, 2]] = temp[:, [0, 2]] * -1  # 5
+    sign_orientations.append(temp)
+    temp = scn.copy()
+    temp[:, [1, 2]] = temp[:, [1, 2]] * -1  # 6
+    sign_orientations.append(temp)
+    sign_orientations.append(scn * -1)  # 7
+    return sign_orientations
+
+
+def revert_rotation(scn: np.ndarray, k: int) -> np.ndarray:
+    temp = scn.copy()
+    if k == 0:  # 0
+        return temp
+    elif k == 1:
+        temp[0] = temp[0] * -1  # 1
+        return temp
+    elif k == 2:
+        temp[1] = temp[1] * -1  # 2
+        return temp
+    elif k == 3:
+        temp[2] = temp[2] * -1  # 3
+        return temp
+    elif k == 4:
+        temp[[0, 1]] = temp[[0, 1]] * -1  # 4
+        return temp
+    elif k == 5:
+        temp[[0, 2]] = temp[[0, 2]] * -1  # 5
+        return temp
+    elif k == 6:
+        temp[[1, 2]] = temp[[1, 2]] * -1  # 6
+        return temp
+    elif k == 7:
+        temp = temp * -1
+        return temp
+    else:
+        print("Invalid rotation. Returning same value ...")
+        return temp
+
+
+def create_mapping(results: list, n: int) -> list:
+    final_list = list()
+    t = dict()
+
+    for result in results:
+        if result[1] not in t:
+            t[result[1]] = (result[0], result[2], result[3], result[4])
+    print("The initial mapping is")
+    print(t)
+    print("")
+    final_list.append((results[0][1], results[0][4]))
+
+    for result in results:
+        if result[0] != 0:
+            print(f"\nThe final list is: {final_list}\n\n")
+            if result[0] in t:
+                while result[0] != 0:
+                    transf = t[result[0]]
+                    # result[4] = revert_rotation(result[4][transf[1]], transf[2])
+                    result[4] = revert_rotation(result[4], transf[2])
+                    result[0] = transf[0]
+                    result[4] += transf[3]  ##
+                    if result[0] == 0:
+                        # result[4] += results[0][4]
+                        final_list.append((result[1], result[4]))
+                    else:
+                        result[4] += transf[5]
+            elif result[1] in t:
+                result[0], result[1] = result[1], result[0]
+                result[4] *= -1
+                print("entering recursion with result:")
+                print(result)
+                if result[0] in t:
+                    while result[0] != 0:
+                        print(f"recursion: {result[0]}")
+                        transf = t[result[0]]
+                        # result[4] = revert_rotation(result[4][transf[1]], transf[2])
+                        result[4] = revert_rotation(result[4], transf[2])
+                        result[3] = transf[2]
+                        result[2] = transf[1]
+                        result[0] = transf[0]
+                        result[4] += transf[3]  # always
+                        print(result)
+                        if result[0] == 0:
+                            # result[4] += results[0][4]
+                            final_list.append((result[1], result[4]))
+                        # else:
+                        #     result[4] += transf[3]  # always
+
+    return final_list
+
+
 def main() -> None:
     scanner_list = read_scanners()
 
@@ -182,39 +170,41 @@ def main() -> None:
     for scanner in scanner_list:
         beacon_counter += len(scanner)
 
-    print(
-        f"Before subtracting overlapped beacons we have in total {beacon_counter} beacons and {len(scanner_list)} scanners."
-    )
+    # print(f"IDB is {beacon_counter} beacons and {len(scanner_list)} scanners.")
+    axis_set = [
+        (0, 1, 2),
+        (0, 2, 1),
+        (1, 0, 2),
+        (1, 2, 0),
+        (2, 0, 1),
+        (2, 1, 0),
+    ]
+    performed_rotations = list()
     for i in range(len(scanner_list)):
         for j in range(i + 1, len(scanner_list)):
-            orientation = 0
-            for scanner_oriented in get_orientations(scanner_list[j]):
-                overlap_result = get_beacons_diff(scanner_list[i], scanner_oriented)
-                if overlap_result[0]:
-                    beacon_counter -= overlap_result[1]
-                    print(
-                        "------------------------------------------------------------"
-                    )
-                    print(f"Scanners {i}, {j} have {overlap_result[1]} common beacons.")
-                    print(f"The scanner {j} has the orientation: {orientation}")
-                    print(f"The difference vector is: {overlap_result[2]}\n")
-                orientation += 1
+            for axis_selected in axis_set:
+                signed_list = get_directions(scanner_list[j][:, axis_selected])
+                for k in range(len(signed_list)):
+                    overlap_result = get_beacons_diff(scanner_list[i], signed_list[k])
+                    if overlap_result[0]:
+                        # print("----------------------------------------")
+                        # print(
+                        #     f"Scanners {i}, {j} have {overlap_result[1]} common beacons."
+                        # )
+                        beacon_counter -= overlap_result[1]
+                        # print(
+                        #     f"The axis selection is {axis_selected}, and the direction index is {k}"
+                        # )
+                        # print(f"The raw difference vector is: {overlap_result[2]}")
+                        performed_rotations.append(
+                            [i, j, list(axis_selected), k, overlap_result[2]]
+                        )
 
-    print(f"The total number of unique beacons is: {beacon_counter}")
-
-    # for scann1_orientation in get_orientations(scanner_list[1]):
-    #     print(get_beacons_diff(scanner_list[0], scann1_orientation))
+    # print(f"The total number of unique beacons is: {beacon_counter}\n")
+    print(performed_rotations)
+    print("")
+    print(create_mapping(performed_rotations, len(scanner_list)))
 
 
 if __name__ == "__main__":
     main()
-
-# attempts part1:
-# if no overlaps we have 719 beacons
-# 527 wrong too high
-# 526 wrong too high
-# 524 wrong too high
-# 523 wrong
-# 479 wrong
-# 383 wrong
-# 491 wrong
