@@ -1,5 +1,5 @@
 # taken from https://github.com/womogenes/AoC-2021-Solutions/blob/main/day_24/day_24_p1.py
-# steps and required list adjust to my input
+# steps and required lists adjust to my input
 from itertools import product
 
 with open("./data/day24.txt") as fin:
